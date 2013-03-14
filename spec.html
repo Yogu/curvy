@@ -1,0 +1,71 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <title>Jasmine Spec Runner</title>
+
+  <link rel="stylesheet" type="text/css" href="scripts/libs/jasmine/lib/jasmine-core/jasmine.css">
+  <script type="text/javascript" src="scripts/libs/jasmine/lib/jasmine-core/jasmine.js"></script>
+  <script type="text/javascript" src="scripts/libs/jasmine/lib/jasmine-core/jasmine-html.js"></script>
+
+  <!-- include spec files here... -->
+  <script type="text/javascript" src="spec/physics.js"></script>
+  <script type="text/javascript" src="spec/world.js"></script>
+  <script type="text/javascript" src="spec/building-path.js"></script>
+
+  <!-- include source files here... -->
+	<script type="text/javascript" src="scripts/libs/jquery/jquery-1.8.2.js"></script>
+	<script type="text/javascript" src="scripts/libs/gl-matrix/gl-matrix.js"></script>
+		<script type="text/javascript" src="scripts/base.js"></script>
+		<script type="text/javascript" src="scripts/renderer.js"></script>
+		<script type="text/javascript" src="scripts/world.js"></script>
+		<script type="text/javascript" src="scripts/input.js"></script>
+		<script type="text/javascript" src="scripts/chunk.js"></script>
+		<script type="text/javascript" src="scripts/physics.js"></script>
+		<script type="text/javascript" src="scripts/model.js"></script>
+		<script type="text/javascript" src="scripts/mesh.js"></script>
+		<script type="text/javascript" src="scripts/material.js"></script>
+		<script type="text/javascript" src="scripts/entity.js"></script>
+		<script type="text/javascript" src="scripts/blocks.js"></script>
+		<script type="text/javascript" src="scripts/resources.js"></script>
+		<script type="text/javascript" src="scripts/building/building-path.js"></script>
+		<script type="text/javascript" src="scripts/building/straight-move-strategy.js"></script>
+		<script type="text/javascript" src="scripts/building/guided-builder.js"></script>
+		<script type="text/javascript" src="scripts/building/test-builder.js"></script>
+		<script type="text/javascript" src="scripts/building/test-path-builder.js"></script>
+		<script type="text/javascript" src="scripts/game.js"></script>
+
+  <script type="text/javascript">
+    (function() {
+      var jasmineEnv = jasmine.getEnv();
+      jasmineEnv.updateInterval = 1000;
+
+      var trivialReporter = new jasmine.TrivialReporter();
+
+      jasmineEnv.addReporter(trivialReporter);
+
+      jasmineEnv.specFilter = function(spec) {
+        return trivialReporter.specFilter(spec);
+      };
+
+      var currentWindowOnload = window.onload;
+
+      window.onload = function() {
+        if (currentWindowOnload) {
+          currentWindowOnload();
+        }
+        execJasmine();
+      };
+
+      function execJasmine() {
+        jasmineEnv.execute();
+      }
+
+    })();
+  </script>
+
+</head>
+
+<body>
+</body>
+</html>

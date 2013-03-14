@@ -1,0 +1,6 @@
+[submodule "scripts/libs/gl-matrix"]
+	path = scripts/libs/gl-matrix
+	url = git://github.com/toji/gl-matrix.git
+[submodule "scripts/libs/jasmine"]
+	path = scripts/libs/jasmine
+	url = https://github.com/pivotal/jasmine.git
