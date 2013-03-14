@@ -9,5 +9,24 @@
 		
 	"green": {
 		"color": [0,1,0,1]
+	},
+	
+	"block": {
+		"texture": "blue.png"
+	},
+	"grass": {
+		"texture": "green.png"
+	},
+	
+	"shadow": {
+		"texture": "shadow.png"
+	},
+		
+	"yellow": {
+		"color": [1,1,0,1]
+	},
+		
+	"transparent": {
+		"color": [1,0,0,0.2]
 	}
 }

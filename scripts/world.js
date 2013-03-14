@@ -13,10 +13,10 @@ self.World = function() {
 	this.height = 8;
 	
 	this.ball = new Ball(this);
-	this.ball.position = vec3.fromValues(0, 0, -length + this.ball.radius)
+	this.ball.position = vec3.fromValues(0, 0, this.length - this.ball.radius)
 	
 	this.camera = new Body(this);
-	this.camera.position = vec3.fromValues(-length - 5, 0, 0);
+	this.camera.position = vec3.fromValues(0, 0, this.length + 5);
 	
 	this.update = function(elapsed, input) {
 		self.ball.update(elapsed);
