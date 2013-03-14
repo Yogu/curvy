@@ -18,7 +18,6 @@
 	function init() {
 		console.log('Initializing game...');
 		showStatus('Loading resources...');
-		game = new Game();
 		renderer = new Renderer(gl);
 		input = new Input();
 		initViewport();
@@ -28,8 +27,6 @@
 			$('#progress').text((resources.progress * 100).toFixed(0) + '%');
 		});
 		$(resources).on('load', startLoop);
-		
-		window.game = game;
 	}
 	
 	function initViewport() {
@@ -44,6 +41,9 @@
 	}
 	
 	function startLoop() {
+		console.log('Initializing game...');
+		game = new Game();
+		window.game = game;
 		console.log('Render loop started');
 		$('#splash').hide();
 		$('#status').show();

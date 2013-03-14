@@ -18,8 +18,8 @@ self.Renderer = function(gl, world) {
 		textureEnabled: null
 	};
 	
-	var NEAR_CLIPPING = 0.1;
-	var FAR_CLIPPING = 100;
+	var NEAR_CLIPPING = 0.01;
+	var FAR_CLIPPING = 1000;
 	
 	initOpenGL();
 	initShaders();
@@ -75,7 +75,7 @@ self.Renderer = function(gl, world) {
 	var normalMatrixBase = matrix;
 	
 	function pushMatrix() {
-		matrices.push({matrix: mat4.create(matrix), normalMatrixBase: mat4.create(normalMatrixBase) });
+		matrices.push({matrix: mat4.clone(matrix), normalMatrixBase: mat4.clone(normalMatrixBase) });
 	}
 	
 	function popMatrix() {

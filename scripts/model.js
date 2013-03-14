@@ -63,6 +63,7 @@ self.Model = function(url) {
 
 				console.log("Parsed model with " + vertices.length + " vertices, " + polygonCount +
 					" polygons, " + surfaceCount + " surfaces and " + triangleCount + " triangles");
+				self.mesh = mesh;
 				$(self).trigger('load');
 			},
 			error: function(error) {
@@ -158,40 +159,5 @@ self.Model = function(url) {
 				return vertices.length / 3 - 1; // vertices contains 3 elements per vertex
 			}
 		}
-	};
-	
-	this.render = function(r) {
-		if (mesh != null) {
-			if (this.corrections) {
-				var corrections = this.corrections;
-				r.updateMatrix(function(matrix) {
-					matrix.scale(corrections.scale);
-					matrix.rotateX(corrections.rotation[0]);
-					matrix.rotateY(corrections.rotation[1]);
-					matrix.rotateZ(corrections.rotation[2]);
-					matrix.translate(corrections.offset);
-					
-					mesh.render(r);
-				});
-			} else
-				mesh.render(r);
-		}
-	};
-	
-	this.center = function(r) {
-		if (mesh == null)
-			throw new Error("Model.center() called before model was completely loaded");
-		
-		var offset = vec3.add(self.minVector, self.maxVector, vec3.create());
-		vec3.scale(offset, -0.5);
-		
-		if (!self.corrections) {
-			self.corrections = {
-				rotation: vec3.create(),
-				scale: vec3.createFrom(1,1,1),
-				offset: offset,
-			};
-		} else
-			self.corrections.offset = offset;
 	};
 };

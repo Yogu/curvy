@@ -9,7 +9,7 @@ self.resources = new (function() {
 	
 	this.materials = registerResource(new Materials('models/material.json'));
 	var models = [
-		'sphere', 'yogu'
+		'sphere', 'yogu', 'box'
 	];
 
 	// Initialize models

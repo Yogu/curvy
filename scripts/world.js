@@ -11,12 +11,19 @@ self.World = function() {
 	this.length = 20;
 	this.width = 10;
 	this.height = 8;
+	this.max = vec3.fromValues(this.width/2, this.height/2, this.length/2);
+	this.min = vec3.negate(vec3.create(), this.max);
 	
 	this.ball = new Ball(this);
-	this.ball.position = vec3.fromValues(0, 0, this.length - this.ball.radius)
+	this.ball.position = vec3.fromValues(0, 0, this.length / 2 - this.ball.radius)
 	
 	this.camera = new Body(this);
-	this.camera.position = vec3.fromValues(0, 0, this.length + 5);
+	this.camera.position = vec3.fromValues(0, 0, this.length);
+	//this.camera.position = vec3.fromValues(0, this.height + 20, 0);
+	//this.camera.rotation = vec3.fromValues(Math.PI / 2, 0, 0);
+	
+	this.room = new Room(this, this.width, this.height, this.length);
+	this.room.position = vec3.fromValues(0, 0, 0);
 	
 	this.update = function(elapsed, input) {
 		self.ball.update(elapsed);
@@ -24,6 +31,7 @@ self.World = function() {
 	
 	this.render = function(r) {
 		self.ball.render(r);
+		self.room.render(r);
 	};
 	
 	this.applyCamera = function(matrix) {

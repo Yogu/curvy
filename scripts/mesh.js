@@ -36,6 +36,28 @@ self.Mesh = function(buffers) {
 	});
 	
 	this.render = function(r) {
+		var self = this;
+		if (this.corrections) {
+			var corrections = this.corrections;
+			r.updateMatrix(function(matrix) {
+				if (corrections.scale != undefined)
+					matrix.scale(corrections.scale);
+				if (corrections.rotation != undefined) {
+					matrix.rotateX(corrections.rotation[0]);
+					matrix.rotateY(corrections.rotation[1]);
+					matrix.rotateZ(corrections.rotation[2]);
+				}
+
+				if (corrections.offset != undefined)
+					matrix.translate(corrections.offset);
+				
+				self.renderWithoutCorrections(r);
+			});
+		} else
+			this.renderWithoutCorrections(r);
+	};
+	
+	this.renderWithoutCorrections = function(r) {
 		if (!buffersBuilt) {
 			buildBuffers(r);
 			buffersBuilt = true;
@@ -47,7 +69,7 @@ self.Mesh = function(buffers) {
 			textureCoords: glTextureCoordBuffer,
 			surfaces: surfacesBuffer,
 		});
-	};
+	}
 	
 	function buildBuffers(r) {
 		triangleCount = 0;
