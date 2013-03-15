@@ -15,7 +15,7 @@
 		this.position = [0,0,0];
 	};
 	
-	Ball.prototype = $.extend(Entity.prototype, {
+	$.extend(Ball.prototype, Entity.prototype, {
 		update: function(elapsed) {
 			var offset = vec3.scale(vec3.create(), this.speed, elapsed);
 			vec3.add(this.position, this.position, offset);

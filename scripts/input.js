@@ -1,6 +1,8 @@
 self.Input = function() {
 	var self = this;
 	
+	var pressedKeys = {};
+	
 	var keys = {
 		UP: 38,
 		DOWN: 40,
@@ -14,7 +16,6 @@ self.Input = function() {
 	}
 	
 	document.addEventListener('keydown', function(event) {
-		$('#buttons').hide();
 		self.pressedKeys[event.keyCode] = true;
 	});
 	

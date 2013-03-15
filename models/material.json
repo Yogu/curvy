@@ -21,6 +21,10 @@
 	"shadow": {
 		"texture": "shadow.png"
 	},
+	
+	"paddle": {
+		"texture": "paddle.png"
+	},
 		
 	"yellow": {
 		"color": [1,1,0,1]

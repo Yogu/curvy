@@ -22,8 +22,10 @@ self.World = function() {
 	//this.camera.position = vec3.fromValues(0, this.height + 20, 0);
 	//this.camera.rotation = vec3.fromValues(Math.PI / 2, 0, 0);
 	
-	this.room = new Room(this, this.width, this.height, this.length);
-	this.room.position = vec3.fromValues(0, 0, 0);
+	this.room = new Room(this, this.width, this.height, this.length);	
+	
+	this.paddle = new Paddle(this);
+	this.paddle.position = vec3.fromValues(0, 0, this.length / 2);
 	
 	this.update = function(elapsed, input) {
 		self.ball.update(elapsed);
@@ -32,6 +34,7 @@ self.World = function() {
 	this.render = function(r) {
 		self.ball.render(r);
 		self.room.render(r);
+		self.paddle.render(r);
 	};
 	
 	this.applyCamera = function(matrix) {

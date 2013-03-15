@@ -9,7 +9,7 @@ self.resources = new (function() {
 	
 	this.materials = registerResource(new Materials('models/material.json'));
 	var models = [
-		'sphere', 'yogu', 'box'
+		'sphere', 'yogu', 'paddle'
 	];
 
 	// Initialize models
@@ -29,7 +29,7 @@ self.resources = new (function() {
 	
 	function registerResource(obj) {
 		console.log('registered resource');
-		// Don't register lazy-loaded resources
+		// Don't register resources when game has already started
 		if (isDone)
 			return obj;
 		
