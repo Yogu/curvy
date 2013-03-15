@@ -1,10 +1,9 @@
 "use strict";
 
-self.Renderer = function(gl, world) {
+self.Renderer = function(gl) {
 	var self = this;
 	
 	var attributes = {
-		position: null,
 		normal: null,
 		textureCoords: null
 	};
@@ -17,9 +16,6 @@ self.Renderer = function(gl, world) {
 		sampler: null,
 		textureEnabled: null
 	};
-	
-	var NEAR_CLIPPING = 0.01;
-	var FAR_CLIPPING = 1000;
 	
 	initOpenGL();
 	initShaders();
@@ -64,11 +60,6 @@ self.Renderer = function(gl, world) {
 		uniforms.color = gl.getUniformLocation(program, "uColor");
 		uniforms.textureEnabled = gl.getUniformLocation(program, "uTextureEnabled");
 	}
-	
-	this.updateProjection = function(width, height) {
-		var matrix = mat4.perspective(mat4.create(), 45, width / height, NEAR_CLIPPING, FAR_CLIPPING);
-		gl.uniformMatrix4fv(uniforms.projectionMatrix, false, matrix);
-	};
 
 	var matrix = mat4.identity(mat4.create());
 	var matrices = [];
@@ -217,13 +208,14 @@ self.Renderer = function(gl, world) {
 	var triangleCount;
 	
 	this.renderWorld = function(world) {
+		gl.uniformMatrix4fv(uniforms.projectionMatrix, false, world.camera.getProjectionMatrix());
+		
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 		
 		resources.materials.white.apply(renderFunctions);
 		
 		// Normal matrix base should not be affected by camera
-		matrix = mat4.identity(mat4.create());
-		world.applyCamera(matrixFunctions);
+		matrix = world.camera.getMatrix();
 		normalMatrixBase = mat4.identity(mat4.create());
 		
 		triangleCount = 0;
@@ -236,7 +228,9 @@ self.Renderer = function(gl, world) {
 		
 		// Normal matrix
 		var normalMatrix = mat4.invert(mat4.create(), normalMatrixBase);
-		mat4.transpose(normalMatrix, normalMatrix);
-		gl.uniformMatrix4fv(uniforms.normalMatrix, false, normalMatrix);
+		if (normalMatrix != null) { // invertable?
+			mat4.transpose(normalMatrix, normalMatrix);
+			gl.uniformMatrix4fv(uniforms.normalMatrix, false, normalMatrix);
+		}
 	}
 };

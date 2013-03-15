@@ -32,7 +32,8 @@
 		 * @param {Input} input information about pressed keys
 		 */
 		applyInput: function(elapsed, input) {
-			
+			var pos = this.world.camera.screenToWorldPoint(input.cursor, this.world.length / 2);
+			this.world.paddle.position = pos;
 		}
 	};
 })();

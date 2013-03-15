@@ -19,8 +19,8 @@
 		console.log('Initializing game...');
 		showStatus('Loading resources...');
 		renderer = new Renderer(gl);
+		window.renderer = renderer;
 		input = new Input();
-		initViewport();
 		console.log('Waiting for resources to load...');
 		$('#progress').text('0%');
 		$(resources).on('progress', function() {
@@ -35,7 +35,7 @@
 			canvas.width = canvas.clientWidth;
 			canvas.height = canvas.clientHeight;
 			gl.viewport(0, 0, canvas.clientWidth, canvas.clientHeight);
-			renderer.updateProjection(canvas.width, canvas.height);
+			game.world.camera.size = {width: canvas.width, height: canvas.height};
 		}
 		updateViewport();
 	}
@@ -44,6 +44,7 @@
 		console.log('Initializing game...');
 		game = new Game();
 		window.game = game;
+		initViewport();
 		console.log('Render loop started');
 		$('#splash').hide();
 		$('#status').show();

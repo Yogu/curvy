@@ -9,12 +9,6 @@ self.geo = new (function() {
 		return d * Math.PI / 180;
 	}
 	this.degToRad = degToRad;
-
-	this.makePerspectiveProjection = function(fovy, aspect, zNear, zFar) {
-		return [ fovy / aspect, 0, 0, 0, 0, fovy, 0, 0, 0, 0,
-				(zFar + zNear) / (zNear - zFar),
-				2 * zFar * zNear / (zNear - zFar), 0, 0, -1, 0 ];
-	};
 	
 	this.angleBetween2DVectors = function(x1, y1, x2, y2) {
 		return Math.atan2(y2, x2) - Math.atan2(y1,x1);

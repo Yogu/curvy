@@ -3,6 +3,8 @@ self.Input = function() {
 	
 	var pressedKeys = {};
 	
+	self.cursor = [0,0];
+	
 	var keys = {
 		UP: 38,
 		DOWN: 40,
@@ -25,6 +27,10 @@ self.Input = function() {
 	
 	window.addEventListener('blur', function(event) {
 		self.pressedKeys = [];
+	});
+	
+	$(document).mousemove(function(e) {
+		self.cursor = [e.pageX, e.pageY];
 	});
 	
 	function idToKey(id) {
