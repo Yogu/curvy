@@ -34,6 +34,13 @@
 		applyInput: function(elapsed, input) {
 			var pos = this.world.camera.screenToWorldPoint(input.cursor, this.world.length / 2);
 			this.world.paddle.position = pos;
+			
+			if (this.world.ball.freezed) {
+				// can we start the ball?
+				if (input.mouse.left && this.world.paddle.touchesBall(this.world.ball)) {
+					this.world.ball.start();
+				}
+			}
 		}
 	};
 })();

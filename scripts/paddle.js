@@ -29,6 +29,14 @@
 				bottom: this.position[1] - this.height / 2,
 				top: this.position[1] + this.height / 2
 			};
+		},
+		
+		touchesBall: function(ball) {
+			var rect = this.getRect();
+			return ball.position[0] - ball.radius <= rect.right &&
+					ball.position[0] + ball.radius >= rect.left &&
+					ball.position[1] - ball.radius <= rect.top &&
+					ball.position[1] + ball.radius >= rect.bottom;
 		}
 	});
 })();

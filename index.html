@@ -26,8 +26,8 @@
 			void main() {
 	        	gl_Position = uProjectionMatrix * uModelviewMatrix * vec4(aPosition, 1.0);
 
-    			vec3 ambientLight = vec3(0.7, 0.7, 0.7);
-    			vec3 directionalLightColor = vec3(0.5, 0.5, 0.75) * 0.3;
+    			vec3 ambientLight = vec3(1,1,1) * 0.8;
+    			vec3 directionalLightColor = vec3(1, 1, 1) * 0.2;
     			vec3 directionalVector = vec3(0.85, 0.8, 0.75);
      
     			vec4 transformedNormal = uNormalMatrix * vec4(aNormal, 1.0);
@@ -118,6 +118,7 @@
 		<script type="text/javascript" src="scripts/material.js"></script>
 		<script type="text/javascript" src="scripts/resources.js"></script>
 		<script type="text/javascript" src="scripts/game.js"></script>
+		<script type="text/javascript" src="scripts/beam.js"></script>
 		<script type="text/javascript" src="scripts/camera.js"></script>
 	</body>
 </html>

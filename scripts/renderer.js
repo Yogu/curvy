@@ -201,7 +201,7 @@ self.Renderer = function(gl) {
 		
 		scale: function(vector) {
 			mat4.scale(matrix, matrix, vector);
-			mat4.scale(normalMatrixBase, normalMatrixBase, vector);
+			// don't scale normals! (would darken the objects)
 		}
 	};
 	

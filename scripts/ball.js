@@ -15,10 +15,17 @@
 				scale: [this.radius, this.radius, this.radius]
 			};
 		this.reset();
+		this.freezed = true;
 	};
 	
 	$.extend(Ball.prototype, Entity.prototype, {
 		update: function(elapsed) {
+			if (this.freezed) {
+				this.resetIn -= elapsed;
+				if (this.resetIn < 0)
+					this.reset();
+			}
+			
 			var offset = vec3.scale(vec3.create(), this.speed, elapsed);
 			vec3.add(this.position, this.position, offset);
 			
@@ -28,13 +35,8 @@
 				} else if (this.position[axis] + this.radius > this.world.max[axis]) {
 					// front
 					if (axis == 2) {
-						var paddle = this.world.paddle.getRect();
-						if (this.position[0] - this.radius >= paddle.right ||
-							this.position[0] + this.radius <= paddle.left ||
-							this.position[1] - this.radius >= paddle.top ||
-							this.position[1] + this.radius <= paddle.bottom) {
-							this.reset();
-						}
+						if (!this.world.paddle.touchesBall(this))
+							this.stop();
 					}
 					this.position[axis] = this.world.max[axis] - this.radius;
 				} else
@@ -45,8 +47,20 @@
 		},
 		
 		reset: function() {
-			this.speed = [Math.random() * 5 - 10,Math.random() * 7 - 14,-10];
-			this.position = [0,0,0];
+			this.stop();
+			this.position = [0,0,this.world.length / 2 - this.radius];
+		},
+		
+		stop: function() {
+			this.speed = [0,0,0];
+			this.freezed = true;
+			this.resetIn = 3;
+		},
+		
+		start: function() {
+			var speedFactor = 0.5;
+			this.speed = [Math.random() * 2 - 4,Math.random() * 3 - 6,-speedFactor * 30];
+			this.freezed = false;
 		}
 	});
 })();

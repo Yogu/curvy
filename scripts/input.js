@@ -4,6 +4,11 @@ self.Input = function() {
 	var pressedKeys = {};
 	
 	self.cursor = [0,0];
+	self.mouse = {
+		left: false,
+		right: false,
+		middle: false
+	}
 	
 	var keys = {
 		UP: 38,
@@ -14,7 +19,7 @@ self.Input = function() {
 		PAGE_DOWN: 34,
 		A: 65,
 		F: 70,
-		CTRL: 17
+		CTRL: 17,
 	}
 	
 	document.addEventListener('keydown', function(event) {
@@ -25,8 +30,41 @@ self.Input = function() {
 		self.pressedKeys[event.keyCode] = false;
 	});
 	
+	document.addEventListener('mousedown', function(event) {
+		switch (event.button) {
+		case 0:
+			self.mouse.left = true;
+			break;
+		case 1:
+			self.mouse.middle = true;
+			break;
+		case 2:
+			self.mouse.right = true;
+			break;
+		}
+	});
+	
+	document.addEventListener('mouseup', function(event) {
+		switch (event.button) {
+		case 0:
+			self.mouse.left = false;
+			break;
+		case 1:
+			self.mouse.middle = false;
+			break;
+		case 2:
+			self.mouse.right = false;
+			break;
+		}
+	});
+	
 	window.addEventListener('blur', function(event) {
 		self.pressedKeys = [];
+		self.mouse = {
+				left: false,
+				right: false,
+				middle: false
+			}
 	});
 	
 	$(document).mousemove(function(e) {
