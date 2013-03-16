@@ -1,7 +1,7 @@
 self.Input = function() {
 	var self = this;
 	
-	var pressedKeys = {};
+	self.pressedKeys = {};
 	
 	self.cursor = [0,0];
 	self.mouse = {

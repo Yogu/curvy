@@ -16,6 +16,8 @@
 			};
 		this.reset();
 		this.freezed = true;
+		
+		this.spin = [5,0,0];
 	};
 	
 	$.extend(Ball.prototype, Entity.prototype, {
@@ -26,10 +28,14 @@
 					this.reset();
 			}
 			
-			var offset = vec3.scale(vec3.create(), this.speed, elapsed);
-			vec3.add(this.position, this.position, offset);
-			
 			if (!this.freezed) {
+				// spin
+				var rotationDiff = vec3.scale(vec3.create(), this.spin, elapsed);
+				vec3.add(this.rotation, this.rotation, rotationDiff);
+				
+				var offset = vec3.scale(vec3.create(), this.speed, elapsed);
+				vec3.add(this.position, this.position, offset);
+				
 				for (var axis = 0; axis < 3; axis++) {
 					if (this.position[axis] - this.radius < this.world.min[axis]) {
 						this.position[axis] = this.world.min[axis] + this.radius;

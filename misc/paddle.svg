@@ -7,6 +7,7 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="744.09448819"
@@ -16,7 +17,36 @@
    inkscape:version="0.48.3.1 r9886"
    sodipodi:docname="paddle.svg">
   <defs
-     id="defs4" />
+     id="defs4">
+    <pattern
+       inkscape:collect="always"
+       xlink:href="#Checkerboard"
+       id="pattern5215"
+       patternTransform="matrix(8,0,0,8.0000013,560,782.36218)" />
+    <pattern
+       inkscape:stockid="Checkerboard"
+       id="Checkerboard"
+       patternTransform="translate(0,0) scale(10,10)"
+       height="2"
+       width="2"
+       patternUnits="userSpaceOnUse"
+       inkscape:collect="always">
+      <rect
+         id="rect4570"
+         height="1"
+         width="1"
+         y="0"
+         x="0"
+         style="fill:black;stroke:none" />
+      <rect
+         id="rect4572"
+         height="1"
+         width="1"
+         y="1"
+         x="1"
+         style="fill:black;stroke:none" />
+    </pattern>
+  </defs>
   <sodipodi:namedview
      id="base"
      pagecolor="#ffffff"
@@ -25,8 +55,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1"
-     inkscape:cx="154.49705"
-     inkscape:cy="201.65964"
+     inkscape:cx="95.225266"
+     inkscape:cy="125.38741"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -46,10 +76,28 @@
      inkscape:window-height="998"
      inkscape:window-x="1024"
      inkscape:window-y="24"
-     inkscape:window-maximized="1">
+     inkscape:window-maximized="1"
+     showguides="true"
+     inkscape:guide-bbox="true">
     <inkscape:grid
        type="xygrid"
        id="grid3853" />
+    <sodipodi:guide
+       orientation="1,0"
+       position="560,238"
+       id="guide5217" />
+    <sodipodi:guide
+       orientation="0,1"
+       position="579.5,270"
+       id="guide5219" />
+    <sodipodi:guide
+       orientation="0,1"
+       position="569.25,254"
+       id="guide5221" />
+    <sodipodi:guide
+       orientation="1,0"
+       position="576,292.25"
+       id="guide5223" />
   </sodipodi:namedview>
   <metadata
      id="metadata7">
@@ -141,5 +189,59 @@
        id="path3855"
        d="m 120.96875,700.1875 c -2.89552,0 -5.125,3.70538 -5.125,8.53125 l 0,31.28125 c 0,4.82587 2.22948,8.53125 5.125,8.53125 l 46.0625,0 c 2.89552,0 5.125,-3.70538 5.125,-8.53125 l 0,-31.28125 c 0,-4.82587 -2.22948,-8.53125 -5.125,-8.53125 z"
        style="color:#000000;fill:#c2c2c2;fill-opacity:0.21354167;fill-rule:nonzero;stroke:none;stroke-width:8;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+    <g
+       id="g3766"
+       inkscape:export-filename="../images/checker.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90">
+      <rect
+         y="652.36218"
+         x="409"
+         height="32"
+         width="32"
+         id="rect2994"
+         style="color:#000000;fill:#c9c9c9;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.29999994999999990;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+      <rect
+         style="color:#000000;fill:#c9c9c9;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.29999994999999990;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+         id="rect3764"
+         width="32"
+         height="32"
+         x="441"
+         y="684.36218" />
+      <rect
+         style="color:#000000;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.29999995;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+         id="rect3770"
+         width="32"
+         height="32"
+         x="441"
+         y="652.36218" />
+      <rect
+         y="684.36218"
+         x="409"
+         height="32"
+         width="32"
+         id="rect3772"
+         style="color:#000000;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.29999995;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+    </g>
+    <g
+       id="g5225"
+       inkscape:export-filename="../images/checker.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90">
+      <rect
+         style="color:#000000;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.29999994999999990;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+         id="rect5213"
+         width="64"
+         height="64"
+         x="560"
+         y="782.36218" />
+      <rect
+         y="782.36218"
+         x="560"
+         height="64"
+         width="64"
+         id="rect3774"
+         style="color:#000000;fill:url(#pattern5215);fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.29999994999999990;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;opacity:0.39534884" />
+    </g>
   </g>
 </svg>
