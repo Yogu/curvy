@@ -59,7 +59,22 @@
 			}
 		</script>
 	</head>
-	<body>
+	<body>		
+		<div id="network">
+			<div id="login-box">
+				<h3>Login</h3>
+				<input id="user" type="text" value="" placeholder="Your name" />
+				<button id="login">Login</button>
+				<button id="logout" disabled="disabled">Logout</button>
+				<p id="network-status">Enter your name and click Login</p>
+			</div>
+			<div id="contacts-box" style="display: none;">
+				<h3>Other Players</h3>
+				<p id="no-contacts" style="display: none;">There are currently no other players.</p>
+				<ul id="contacts"></ul>
+			</div>
+		</div>
+		
 		<div id="canvas-wrap">
 			<canvas id ="canvas"></canvas>
 			<div id="splash">
@@ -120,5 +135,9 @@
 		<script type="text/javascript" src="scripts/game.js"></script>
 		<script type="text/javascript" src="scripts/beam.js"></script>
 		<script type="text/javascript" src="scripts/camera.js"></script>
+		<script type="text/javascript" src="scripts/network/data-channel.js"></script>
+		<script type="text/javascript" src="scripts/network/server-connection.js"></script>
+		<script type="text/javascript" src="scripts/network/network.js"></script>
+		<script type="text/javascript" src="scripts/network/ui.js"></script>
 	</body>
 </html>

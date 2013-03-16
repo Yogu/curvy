@@ -1,6 +1,8 @@
 "use strict";
 
 function DataChannel(serverConnection, contact, description) {
+	var self = this;
+	this.contact = contact;
 	var configuration = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]};
 	
 	var RTCPeerConnection = typeof(mozRTCPeerConnection) != 'undefined' ? mozRTCPeerConnection : 
@@ -23,12 +25,19 @@ function DataChannel(serverConnection, contact, description) {
 	
 	function gotDescription(desc) {
 		pc.setLocalDescription(desc);
-		serverConnection.send(isCaller ? 'call' : 'answer', {contact: contact, description: desc});
+		serverConnection.send(isCaller ? 'call' : 'accept', {contact: contact, description: desc});
 	}
 
-	$(serverConnection).on('answer', function(e, data) {
+	$(serverConnection).on('accept', function(e, data) {
 		if (data.contact == contact)
 			pc.setRemoteDescription(new RTCSessionDescription(data.description));
+	});
+	
+	$(serverConnection).on('reject', function(e, data) {
+		if (data.contact == contact) {
+			$(self).triggerHandler('close', data);
+			self.close();
+		}
 	});
 	
 	$(serverConnection).on('candidate', function(e, data) {
@@ -44,17 +53,17 @@ function DataChannel(serverConnection, contact, description) {
 		dataChannel.onopen = function() {
 			console.log("Data channel opened");
 			dataChannelOpen = true;
-			$(self).trigger('open');
+			$(self).triggerHandler('open');
 		};
 		
 		dataChannel.onclose = function() {
 			console.log("Data channel closed");
 			dataChannelOpen = false;
-			$(self).trigger('close');
+			$(self).triggerHandler('close');
 		};
 		
 		dataChannel.onmessage = function(e) {
-			$(this).trigger('message', e.data);
+			$(this).triggerHandler('message', e.data);
 		};
 	};
 	

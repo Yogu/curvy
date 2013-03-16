@@ -3,7 +3,7 @@
 function Network() {
 	this.user = null;
 	this.serverConnection = null;
-	this.channels = {};
+	this.channel = null;
 }
 
 Network.prototype = {
@@ -29,19 +29,24 @@ Network.prototype = {
 		});
 		$(this.serverConnection).on('contacts', function(e, contacts) {
 			self.contacts = contacts.filter(function(c) { return c != self.user;});
-			$(self).trigger('contacts');
+			$(self).triggerHandler('contacts');
 		});
 		$(this.serverConnection).on('close', function() {
-			$(self).trigger('logout');
+			$(self).triggerHandler('logout');
 		});
 		$(this.serverConnection).on('call', function(e, data) {
-			console.log('Incoming call from ' + data.contact);
-			$(self).trigger('call', {
-				caller: data.contact,
-				accept: function() {
-					self._createDataChannel(data.contact, data.description);
-				}
-			});
+			if (this.channel != null) {
+				console.log('Rejecting call from ' + data.contact + ' because there is already an active channel');
+				this.serverConnection.send('reject', {contact: data.contact, reason: 'busy'});
+			} else {
+				console.log('Incoming call from ' + data.contact);
+				$(self).triggerHandler('call', {
+					caller: data.contact,
+					accept: function() {
+						self._createDataChannel(data.contact, data.description);
+					}
+				});
+			}
 		});
 	},
 	
@@ -59,7 +64,7 @@ Network.prototype = {
 			this.serverConnection.close();
 		this.serverConnection = null;
 		this.channels = {};
-		$(this).trigger('logout');
+		$(this).triggerHandler('logout');
 	},
 	
 	/**
@@ -73,21 +78,24 @@ Network.prototype = {
 	call: function(contact, success) {
 		if (contact == this.user)
 			throw new Error('Tried to call yourself');
-		else if (this.contacts.indexOf(contact) < 0)
+		if (this.contacts.indexOf(contact) < 0)
 			throw new Error('Contact not found');
-		else if (contact in this.channels) {
-			return this.channels[contact];
-		} else {
-			return this._createDataChannel(contact, null);
-		}
+		if (this.channel != null && this.channel.contact == contact)
+			return this.channel;
+		
+		return this._createDataChannel(contact, null);
 	},
 	
 	_createDataChannel: function(contact, description) {
-		if (contact in this.channels)
-			this.channels[contact].close();
-		var channel = new DataChannel(this.serverConnection, contact, description);
-		console.log('Opened data channel for ' + contact);
-		this.channels[contact] = channel;
-		return channel;
+		var self = this;
+		if (self.channel != null)
+			self.channel.close();
+		self.channel = new DataChannel(this.serverConnection, contact, description);
+		
+		console.log('Opening data channel for ' + contact);
+		$(self.channel).on('close', function() {
+			self.channel = null;
+		});
+		return self.channel;
 	}
 };

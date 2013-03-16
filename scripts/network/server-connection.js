@@ -1,7 +1,10 @@
 "use strict";
 
+//var WEBSOCKET_URL = 'ws://' + document.location.host + '/';
+var WEBSOCKET_URL = 'ws://localhost:8888/';
+
 function ServerConnection(user) {
-	var url = 'ws://' + document.location.host + '/connect?user='
+	var url = WEBSOCKET_URL + 'connect?user='
 			+ encodeURI(user);
 	var connection = new WebSocket(url);
 	this.user = user;
@@ -37,7 +40,7 @@ function ServerConnection(user) {
 		else {
 			var type = obj.type;
 			var data = obj.data ? obj.data : null;
-			$(self).trigger(type, [data]);
+			$(self).triggerHandler(type, [data]);
 		}
 	};
 	
