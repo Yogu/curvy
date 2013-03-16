@@ -15,11 +15,20 @@
 		this.mesh.corrections = {
 			scale: [this.width / 2, this.height / 2, 1]
 		};
+		this.lastPosition = null;
+		this.speed = [0,0,0];
 	};
 	
 	$.extend(Paddle.prototype, Entity.prototype, {
 		update: function(elapsed) {
-			
+			if (this.lastPosition !== null) {
+				var newSpeed = [
+				                (this.lastPosition[0] - this.position[0]) / elapsed,
+				                (this.lastPosition[1] - this.position[1]) / elapsed];
+				this.speed[0] += (newSpeed[0] - this.speed[0]) * 0.5;
+				this.speed[1] += (newSpeed[1] - this.speed[1]) * 0.5;
+			}
+			this.lastPosition = vec3.clone(this.position);
 		},
 		
 		getRect: function() {

@@ -1,6 +1,9 @@
 (function() {
 	"use strict";
 	
+	var SPEED = 15;
+	var SPEED_INCREASE = 0.2; // m/s per played second
+	
 	self.Ball = null;
 	/**
 	 * @constructor
@@ -17,7 +20,7 @@
 		this.reset();
 		this.freezed = true;
 		
-		this.spin = [5,0,0];
+		this.spin = [0,0,0];
 	};
 	
 	$.extend(Ball.prototype, Entity.prototype, {
@@ -29,12 +32,20 @@
 			}
 			
 			if (!this.freezed) {
-				// spin
+				// spin to rotation
 				var rotationDiff = vec3.scale(vec3.create(), this.spin, elapsed);
 				vec3.add(this.rotation, this.rotation, rotationDiff);
 				
-				var offset = vec3.scale(vec3.create(), this.speed, elapsed);
+				// spin to speed
+				var offset = vec3.scale(vec3.create(), this.spin, elapsed);
+				vec3.add(this.speed, this.speed, offset);
+				
+				offset = vec3.scale(vec3.create(), this.speed, elapsed);
 				vec3.add(this.position, this.position, offset);
+				
+				var currentSpeed = vec3.length(this.speed);
+				var targetSpeed = currentSpeed + SPEED_INCREASE * elapsed;
+				vec3.scale(this.speed, this.speed, targetSpeed / currentSpeed);
 				
 				for (var axis = 0; axis < 3; axis++) {
 					if (this.position[axis] - this.radius < this.world.min[axis]) {
@@ -42,7 +53,10 @@
 					} else if (this.position[axis] + this.radius > this.world.max[axis]) {
 						// front
 						if (axis == 2) {
-							if (!this.world.paddle.touchesBall(this)) {
+							if (this.world.paddle.touchesBall(this)) {
+								// apply spin
+								this.getSpinFromPaddle();
+							} else {
 								this.stop();
 							}
 						}
@@ -50,7 +64,7 @@
 					} else
 						continue;
 					
-					this.speed[axis] *= -1.01;
+					this.speed[axis] *= -1;
 				}
 			}
 		},
@@ -64,16 +78,21 @@
 		
 		stop: function() {
 			this.speed = [0,0,0];
+			this.spin = [0,0,0];
 			this.freezed = true;
 			this.resetIn = 3;
 			this.mesh.surfaces[0].material = resources.materials.red;
 		},
 		
 		start: function() {
-			var speedFactor = 0.5;
-			this.speed = [Math.random() * 2 - 4,Math.random() * 3 - 6,-speedFactor * 30];
+			this.speed = [0,0,-SPEED];
 			this.freezed = false;
 			this.mesh.surfaces[0].material = resources.materials.green;
+			this.getSpinFromPaddle();
+		},
+		
+		getSpinFromPaddle: function() {
+			vec3.add(this.spin, this.spin, vec3.scale(vec3.create(), this.world.paddle.speed, 1));
 		}
 	});
 })();

@@ -30,9 +30,10 @@ self.World = function() {
 	this.paddle = new Paddle(this);
 	this.paddle.position = vec3.fromValues(0, 0, this.length / 2);
 	
-	this.update = function(elapsed, input) {
+	this.update = function(elapsed) {
 		self.ball.update(elapsed);
 		self.beam.update(elapsed);
+		self.paddle.update(elapsed);
 	};
 	
 	this.render = function(r) {
