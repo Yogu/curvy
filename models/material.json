@@ -10,6 +10,10 @@
 	"green": {
 		"color": [0,1,0,1]
 	},
+		
+	"red": {
+		"color": [1,0,0,1]
+	},
 	
 	"wall": {
 		"texture": "blue.png",
@@ -18,14 +22,6 @@
 	
 	"beam": {
 		"color": [1,1,1,0.5]
-	},
-	
-	"grass": {
-		"texture": "green.png"
-	},
-	
-	"shadow": {
-		"texture": "shadow.png"
 	},
 	
 	"paddle": {

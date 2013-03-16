@@ -9,7 +9,7 @@
 		Entity.call(this, world);
 		
 		this.world = world;
-		this.mesh = resources.models.paddle.mesh;
+		this.mesh = resources.models.paddle.createMesh();
 		this.width = 3;
 		this.height = this.width * 0.6;
 		this.mesh.corrections = {

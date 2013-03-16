@@ -11,7 +11,7 @@
 		this.world = world;
 		this.room = room;
 		this.ball = ball;
-		this.mesh = resources.models.beam.mesh;
+		this.mesh = resources.models.beam.createMesh();
 		this.width = 0.1;
 		var downscaling = 0.999;
 		this.mesh.corrections = {

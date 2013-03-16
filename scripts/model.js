@@ -52,25 +52,27 @@ self.Model = function(url) {
 					});
 				}
 
-				console.log('Mesh for ' + url + ': ' + normals.length + ' normals');
-				mesh = new Mesh({
+				self.buffers = {
 					vertices: vertices,
 					textureCoords: textureCoords,
 					normals: normals,
 					surfaces: surf
-				});
+				};
 				
 				surfaceCount = surf.length;
 
-				console.log("Parsed model with " + vertices.length + " vertices, " + polygonCount +
+				console.log("Parsed model " + url + " with " + vertices.length + " vertices, " + polygonCount +
 					" polygons, " + surfaceCount + " surfaces and " + triangleCount + " triangles");
-				self.mesh = mesh;
 				$(self).trigger('load');
 			},
 			error: function(error) {
 				throw error.statusText;
 			}
 		});
+	};
+	
+	this.createMesh = function() {
+		return new Mesh(this.buffers);
 	};
 		
 	function parseFile(data) {

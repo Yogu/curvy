@@ -15,6 +15,8 @@
  *     }, ...
  *   ]
  * }
+ * 
+ * surfaces property: Can be used to change materials
  */
 self.Mesh = function(buffers) {
 	var self = this;
@@ -34,6 +36,8 @@ self.Mesh = function(buffers) {
 	buffers.surfaces.forEach(function(surface) {
 		surface.triangles = utils.ensureIsBuffer(surface.triangles, Uint16Array);
 	});
+	
+	this.surfaces = buffers.surfaces;
 	
 	this.render = function(r) {
 		var self = this;
@@ -88,6 +92,7 @@ self.Mesh = function(buffers) {
 				triangles: buffer});
 			triangleCount += surface.triangles.length;
 		}
+		self.surfaces = surfacesBuffer;
 	}
 	
 	
