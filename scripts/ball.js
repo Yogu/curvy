@@ -5,11 +5,11 @@
 	/**
 	 * @constructor
 	 */
-	Ball = function(world) {
+	Ball = function(world, radius) {
 		Entity.call(this, world);
 		
 		this.world = world;
-		this.radius = 0.5;
+		this.radius = radius;
 		this.mesh = resources.models.sphere.mesh;
 		this.mesh.corrections = {
 				scale: [this.radius, this.radius, this.radius]
@@ -48,7 +48,7 @@
 		
 		reset: function() {
 			this.stop();
-			this.position = [0,0,this.world.length / 2 - this.radius];
+			this.position = [0,0,this.world.length / 2];
 		},
 		
 		stop: function() {
