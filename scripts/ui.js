@@ -11,6 +11,7 @@
 			game.resetWorld();
 		});
 		$('#fullscreen').click(fullscreen);
+		$('#singleplayer').click(enterSingleplayerMode);
 		document.addEventListener('mozfullscreenchange', fullscreenchange, false);
 		document.addEventListener('webkitfullscreenchange', fullscreenchange, false);
 		document.addEventListener('fullscreenchange', fullscreenchange, false);
@@ -106,5 +107,10 @@
     	} else {
 	    	$('body').removeClass('fullscreen');
     	}
+    }
+    
+    function enterSingleplayerMode() {
+    	controller.closeChannel();
+    	$('#network-status').text('Now playing alone');
     }
 })();

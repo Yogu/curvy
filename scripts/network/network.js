@@ -82,6 +82,13 @@ Network.prototype = {
 		return this._createDataChannel(contact, null);
 	},
 	
+	closeChannel: function() {
+		if (this.channel != null) {
+			this.channel.close();
+			//this._setChannel(null);
+		}
+	},
+	
 	_createDataChannel: function(contact, description) {
 		var self = this;
 		
