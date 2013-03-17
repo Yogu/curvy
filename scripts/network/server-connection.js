@@ -1,7 +1,7 @@
 "use strict";
 
 //var WEBSOCKET_URL = 'ws://' + document.location.host + '/';
-var WEBSOCKET_URL = 'ws://localhost:8888/';
+var WEBSOCKET_URL = 'ws://mobs:8888/';
 
 function ServerConnection(user) {
 	var url = WEBSOCKET_URL + 'connect?user='

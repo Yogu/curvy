@@ -4,6 +4,9 @@ function DataChannel(serverConnection, contact, description) {
 	var self = this;
 	this.contact = contact;
 	var configuration = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]};
+	this.isOpen = false;
+	var isCaller = description === null;
+	this.isCaller = isCaller;
 	
 	var RTCPeerConnection = typeof(mozRTCPeerConnection) != 'undefined' ? mozRTCPeerConnection : 
 		typeof(webkitRTCPeerConnection) != 'undefined' ? webkitRTCPeerConnection : RTCPeerConnection;
@@ -11,7 +14,7 @@ function DataChannel(serverConnection, contact, description) {
 	var pc = new RTCPeerConnection(configuration, {optional: [{RtpDataChannels: true}]});
 	pc.onerror = function(e) {
 		console.log('RTCPeerConnection error: ' + e);
-	}
+	};
 
 	// send any ice candidates to the other peer
 	pc.onicecandidate = function (e) {
@@ -41,9 +44,6 @@ function DataChannel(serverConnection, contact, description) {
 		if (data.contact == contact && !self.isClosed)
 			pc.addIceCandidate(new RTCIceCandidate(data.candidate));
 	});
-	
-	this.isOpen = false;
-	var isCaller = description === null;
 	
 	var dataChannel = null;
 	// reliable data channels not supported by chrome

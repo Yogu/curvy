@@ -4,7 +4,11 @@ var WebSocketServer = require('websocket').server;
 var EventEmitter = require('events').EventEmitter
 
 function start(port,controller) {
-	var server = http.createServer().listen(port);
+	var server = http.createServer(function(request, response) {
+		console.log("Request received for " + request.url);
+		response.write('Welcome to curvy server');
+		response.end();
+	}).listen(port);
 	var webSocketServer = new WebSocketServer({
 	    httpServer: server
 	});
