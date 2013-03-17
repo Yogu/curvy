@@ -28,17 +28,20 @@ self.World = function() {
 	this.beam = new Beam(this, this.room, this.ball);
 	
 	this.paddle = new Paddle(this);
-	this.paddle.position = vec3.fromValues(0, 0, this.length / 2);
+	this.opposingPaddle = new Paddle(this);
+	this.opposingPaddle.position[2] = this.min[2] + 0.1;
 	
 	this.update = function(elapsed) {
 		self.ball.update(elapsed);
 		self.beam.update(elapsed);
 		self.paddle.update(elapsed);
+		self.opposingPaddle.update(elapsed);
 	};
 	
 	this.render = function(r) {
 		self.ball.render(r);
 		self.room.render(r);
+		self.opposingPaddle.render(r);
 		self.beam.render(r);
 		self.paddle.render(r);
 	};

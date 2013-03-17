@@ -35,9 +35,9 @@ Network.prototype = {
 			$(self).triggerHandler('logout');
 		});
 		$(this.serverConnection).on('call', function(e, data) {
-			if (this.channel != null) {
+			if (self.channel != null) {
 				console.log('Rejecting call from ' + data.contact + ' because there is already an active channel');
-				this.serverConnection.send('reject', {contact: data.contact, reason: 'busy'});
+				self.serverConnection.send('reject', {contact: data.contact, reason: 'busy'});
 			} else {
 				console.log('Incoming call from ' + data.contact);
 				$(self).triggerHandler('call', {
@@ -55,15 +55,13 @@ Network.prototype = {
 	 */
 	logout: function() {
 		var self = this;
-		// Close channels
-		for (contact in this.channels) {
-			channels[contact].close();
-		}
+		if (this.channel != null)
+			this.channel.close();
 		
 		if (this.serverConnection != null)
 			this.serverConnection.close();
 		this.serverConnection = null;
-		this.channels = {};
+		this.channel = null;
 		$(this).triggerHandler('logout');
 	},
 	
@@ -80,22 +78,43 @@ Network.prototype = {
 			throw new Error('Tried to call yourself');
 		if (this.contacts.indexOf(contact) < 0)
 			throw new Error('Contact not found');
-		if (this.channel != null && this.channel.contact == contact)
-			return this.channel;
 		
 		return this._createDataChannel(contact, null);
 	},
 	
 	_createDataChannel: function(contact, description) {
 		var self = this;
+		
+		if (this.channel != null && this.channel.contact == contact)
+			return this.channel;
 		if (self.channel != null)
 			self.channel.close();
-		self.channel = new DataChannel(this.serverConnection, contact, description);
+		var channel = new DataChannel(this.serverConnection, contact, description);
 		
 		console.log('Opening data channel for ' + contact);
-		$(self.channel).on('close', function() {
-			self.channel = null;
+		$(channel).on('close', function(e, data) {
+			if (self.channel == channel) {
+				self._setChannel(null);
+			}
+			if (data && data.reason == 'remote')
+				$(self).triggerHandler('remoteclosed', data);
 		});
-		return self.channel;
+		$(channel).on('open', function() {
+			self._setChannel(channel);
+		});
+		$(channel).on('reject', function(e, data) {
+			$(self).triggerHandler('reject', data);
+			if (self.channel == channel) {
+				self._setChannel(null);
+			}
+		});
+		self.channel = channel;
+		return channel;
+	},
+	
+	_setChannel: function(channel) {
+		this.channel = channel;
+		game.setChannel(channel);
+		$(this).triggerHandler('channel', channel);
 	}
 };

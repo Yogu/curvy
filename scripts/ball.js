@@ -43,9 +43,11 @@
 				offset = vec3.scale(vec3.create(), this.speed, elapsed);
 				vec3.add(this.position, this.position, offset);
 				
+				// Increase speed by time
 				var currentSpeed = vec3.length(this.speed);
 				var targetSpeed = currentSpeed + SPEED_INCREASE * elapsed;
-				vec3.scale(this.speed, this.speed, targetSpeed / currentSpeed);
+				if (currentSpeed > 0)
+					vec3.scale(this.speed, this.speed, targetSpeed / currentSpeed);
 				
 				for (var axis = 0; axis < 3; axis++) {
 					if (this.position[axis] - this.radius < this.world.min[axis]) {

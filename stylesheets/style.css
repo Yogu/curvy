@@ -112,3 +112,9 @@ a:hover {
 #network input[type=text] {
 	width: 100%;
 }
+
+#reset {
+	position: absolute;
+	bottom: 10px;
+	right: 10px;
+}

@@ -35,7 +35,6 @@
 			canvas.width = canvas.clientWidth;
 			canvas.height = canvas.clientHeight;
 			gl.viewport(0, 0, canvas.clientWidth, canvas.clientHeight);
-			game.world.camera.size = {width: canvas.width, height: canvas.height};
 		}
 		updateViewport();
 	}
@@ -50,6 +49,9 @@
 		$('#status').show();
 		var last = new Date().getTime();
 		function iteration() {
+			// TODO: improve the data flow
+			game.world.camera.size = {width: canvas.width, height: canvas.height};
+			
 			var elapsed = (new Date().getTime() - last) / 1000;
 			if (elapsed > 0.1)
 				elapsed = 0.1;
