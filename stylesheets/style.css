@@ -109,6 +109,10 @@ a:hover {
 	margin: 0 0 1em;
 }
 
+#contacts .active {
+	font-weight: bold;
+}
+
 #network input[type=text] {
 	width: 100%;
 }

@@ -21,8 +21,8 @@
 		$('#contacts').empty();
 		$(controller.contacts).each(function() {
 			var contact = this;
-				$('<a>').attr('href', 'call').text(contact).click(callThis).appendTo($('<li>').
-						appendTo($('#contacts')));
+				$('<a>').attr('href', 'call').text(contact).click(callThis).appendTo(
+					$('<li>').appendTo($('#contacts')).data('contact', contact));
 			function callThis(e) {
 				e.preventDefault();
 				controller.call(contact); 
@@ -53,6 +53,9 @@
 	$(controller).on('channel', function(e, channel) {
 		if (controller.channel)
 			$('#network-status').text('Now playing with ' + controller.channel.contact);
+		$('#contacts li').each(function() {
+			$(this).toggleClass('active', !!channel && channel.contact == $(this).data('contact'));
+		})
 	});	
 	
 	$(controller).on('reject', function(e, data) {
