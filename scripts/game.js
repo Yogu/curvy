@@ -36,6 +36,7 @@
 						self.world.ball.speed = vec3.multiply(data.ball.speed, data.ball.speed, turning);
 						self.world.ball.spin = vec3.multiply(data.ball.spin, data.ball.spin, turning);
 						self.world.ball.rotation = vec3.multiply(data.ball.rotation, data.ball.rotation, turning);
+						self.world.ball.frozen = data.ball.frozen;
 					}
 				});
 			}
@@ -63,6 +64,7 @@
 							speed: this.world.ball.speed,
 							spin: this.world.ball.spin,
 							rotation: this.world.ball.rotation,
+							frozen: this.world.ball.frozen
 						}});
 					this.timeToNetworkUpdate = NETWORK_UPDATE_INTERVAL;
 				}
@@ -77,9 +79,20 @@
 		 */
 		applyInput: function(elapsed, input) {
 			var pos = this.world.camera.screenToWorldPoint(input.cursor, this.world.length / 2);
+			// don't let paddle exit the room
+			var min = vec3.fromValues(
+				- this.world.width / 2 + this.world.paddle.width / 2,
+				- this.world.height / 2 + this.world.paddle.height / 2,
+				this.world.length / 2);
+			var max = vec3.fromValues(
+					this.world.width / 2 - this.world.paddle.width / 2,
+					this.world.height / 2 - this.world.paddle.height / 2,
+					this.world.length / 2);
+			vec3.max(pos, pos, min);
+			vec3.min(pos, pos, max);
 			this.world.paddle.position = pos;
 			
-			if (this.world.ball.freezed) {
+			if (this.world.ball.frozen) {
 				// can we start the ball?
 				if (input.mouse.left && this.world.paddle.touchesBall(this.world.ball)) {
 					this.world.ball.start();

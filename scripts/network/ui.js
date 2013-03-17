@@ -20,8 +20,9 @@
 						appendTo($('#contacts')));
 			function callThis(e) {
 				e.preventDefault();
-				controller.call(contact);
-				$('#network-status').text('Connecting with ' + contact + '...');
+				controller.call(contact); 
+				if (!controller.channel || controller.channel.contact != contact)
+					$('#network-status').text('Connecting with ' + contact + '...');
 			}
 		});
 		if (controller.contacts.length == 0)

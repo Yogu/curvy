@@ -18,20 +18,20 @@
 				scale: [this.radius, this.radius, this.radius]
 			};
 		this.reset();
-		this.freezed = true;
+		this.frozen = true;
 		
 		this.spin = [0,0,0];
 	};
 	
 	$.extend(Ball.prototype, Entity.prototype, {
 		update: function(elapsed) {
-			if (this.freezed) {
+			if (this.frozen) {
 				this.resetIn -= elapsed;
 				if (this.resetIn < 0)
 					this.reset();
 			}
 			
-			if (!this.freezed) {
+			if (!this.frozen) {
 				// spin to rotation
 				var rotationDiff = vec3.scale(vec3.create(), this.spin, elapsed);
 				vec3.add(this.rotation, this.rotation, rotationDiff);
@@ -73,7 +73,7 @@
 		
 		reset: function() {
 			this.speed = [0,0,0];
-			this.freezed = true;
+			this.frozen = true;
 			this.position = [0,0,this.world.max[2] - this.radius];
 			this.mesh.surfaces[0].material = resources.materials.green;	
 		},
@@ -81,14 +81,14 @@
 		stop: function() {
 			this.speed = [0,0,0];
 			this.spin = [0,0,0];
-			this.freezed = true;
+			this.frozen = true;
 			this.resetIn = 3;
 			this.mesh.surfaces[0].material = resources.materials.red;
 		},
 		
 		start: function() {
 			this.speed = [0,0,-SPEED];
-			this.freezed = false;
+			this.frozen = false;
 			this.mesh.surfaces[0].material = resources.materials.green;
 			this.getSpinFromPaddle();
 		},

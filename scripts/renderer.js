@@ -22,7 +22,7 @@ self.Renderer = function(gl) {
 	
 	// Init configuration
 	function initOpenGL() {
-		// Clear to black, fully opaque
+		// fully opaque
 		gl.clearColor(0.3, 0.3, 0.7, 1.0);
 		// Clear everything
 		gl.clearDepth(1.0);
