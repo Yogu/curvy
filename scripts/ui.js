@@ -10,6 +10,10 @@
 		$('#reset').click(function() {
 			game.resetWorld();
 		});
+		$('#fullscreen').click(fullscreen);
+		document.addEventListener('mozfullscreenchange', fullscreenchange, false);
+		document.addEventListener('webkitfullscreenchange', fullscreenchange, false);
+		document.addEventListener('fullscreenchange', fullscreenchange, false);
 	});
 	
 	$(controller).on('contacts', function() {
@@ -77,4 +81,30 @@
 	function logout() {
 		controller.logout();
 	}
+	
+	function fullscreen() {
+    	$('body').addClass('fullscreen');
+    	var elem = $('#canvas')[0];
+        if (elem.requestFullscreen) {
+        	elem.requestFullscreen();
+        }
+        else if (elem.mozRequestFullScreen) {
+        	elem.mozRequestFullScreen();
+        }
+        else if (elem.webkitRequestFullScreen) {
+        	elem.webkitRequestFullScreen();
+        }
+	}
+	
+    function fullscreenchange() {
+    	var elem = $('#canvas')[0];
+    	if (document.mozFullscreenElement || document.webkitFullscreenElement || document.fullscreenElement) {
+    	    elem.requestPointerLock = elem.requestPointerLock    ||
+    	                              elem.mozRequestPointerLock ||
+    	                              elem.webkitRequestPointerLock;
+    	    elem.requestPointerLock();
+    	} else {
+	    	$('body').removeClass('fullscreen');
+    	}
+    }
 })();

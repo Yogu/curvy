@@ -78,19 +78,34 @@
 		 * @param {Input} input information about pressed keys
 		 */
 		applyInput: function(elapsed, input) {
-			var pos = this.world.camera.screenToWorldPoint(input.cursor, this.world.length / 2);
-			// don't let paddle exit the room
-			var min = vec3.fromValues(
-				- this.world.width / 2 + this.world.paddle.width / 2,
-				- this.world.height / 2 + this.world.paddle.height / 2,
-				this.world.length / 2);
-			var max = vec3.fromValues(
-					this.world.width / 2 - this.world.paddle.width / 2,
-					this.world.height / 2 - this.world.paddle.height / 2,
-					this.world.length / 2);
-			vec3.max(pos, pos, min);
-			vec3.min(pos, pos, max);
-			this.world.paddle.position = pos;
+			// width / height of accessible space
+			var width = this.world.width - this.world.paddle.width;
+			var height = this.world.height - this.world.paddle.height;
+			var length = this.world.length;
+			
+			// corners of accessible space
+			var min = [-width/2, -height/2, length / 2];
+			var max = [width/2, height/2, length / 2];
+			var min = this.world.camera.worldToScreenPoint(min);
+			var max = this.world.camera.worldToScreenPoint(max);
+			var minX = min[0], minY = min[1], maxX = max[0], maxY = max[1];
+			
+			// adjust cursor into accessible space and let go from
+			var x = input.cursor[0], y = input.cursor[1];
+			var x = Math.min(maxX, Math.max(minX, x));
+			var y = Math.min(maxY, Math.max(minY, y));
+			
+			// Adjust cursor (only works in fullscreen mode)
+			input.cursor = [x,y];
+			
+			// x/y -> 0..1
+			var x = (x - minX) / (maxX - minX);
+			var y = (y - minY) / (maxY - minY);
+			
+			// x/y -> world coordinates
+			var x = (x - 0.5) * width;
+			var y = -(y - 0.5) * height;
+			this.world.paddle.position = [x,y,length / 2];
 			
 			if (this.world.ball.frozen) {
 				// can we start the ball?

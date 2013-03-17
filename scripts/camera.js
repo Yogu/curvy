@@ -34,6 +34,20 @@
 			return matrix;
 		},
 		
+		worldToScreenPoint: function(point) {
+			// calculate the positive matrix
+			var matrix = mat4.multiply(mat4.create(), this.getProjectionMatrix(), this.getMatrix());
+			var point = vec4.fromValues(point[0], point[1], point[2], 1);
+			
+			var screenPoint = vec4.transformMat4(vec4.create(), point, matrix);
+			
+			// let x/y screen coordinates go from -1 to 1 within the screen
+			var sx = (screenPoint[0] / screenPoint[3] + 1) / 2 * this.size.width;
+			var sy = (screenPoint[1] / screenPoint[3] + 1) / 2 * this.size.height;
+			
+			return [sx, sy];
+		},
+		
 		screenToWorldPoint: function(screenPoint, zPlane) {
 			// let x/y screen coordinates go from -1 to 1 within the screen
 			var sx = (screenPoint[0] / this.size.width) * 2 - 1;

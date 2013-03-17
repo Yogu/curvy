@@ -8,7 +8,7 @@ self.Input = function() {
 		left: false,
 		right: false,
 		middle: false
-	}
+	};
 	
 	var keys = {
 		UP: 38,
@@ -20,7 +20,7 @@ self.Input = function() {
 		A: 65,
 		F: 70,
 		CTRL: 17,
-	}
+	};
 	
 	document.addEventListener('keydown', function(event) {
 		self.pressedKeys[event.keyCode] = true;
@@ -64,15 +64,21 @@ self.Input = function() {
 				left: false,
 				right: false,
 				middle: false
-			}
+			};
 	});
 	
-	$(document).mousemove(function(e) {
-		self.cursor = [e.pageX, e.pageY];
-	});
+    document.addEventListener("mousemove", function(e) {
+		if ($('body').hasClass('fullscreen')) {
+			var movement = [
+			                e.movementX || e.mozMovementX || e.webkitMovementX || 0,
+			                e.movementY || e.mozMovementY || e.webkitMovementY || 0];
+			vec2.add(self.cursor, self.cursor, movement);
+		} else {
+			self.cursor = [e.pageX, e.pageY];
+		}
+	}, false);
 	
 	function idToKey(id) {
-		var key;
 		switch (id) {
 		case 'left':
 			return keys.LEFT;

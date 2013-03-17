@@ -113,8 +113,6 @@ a:hover {
 	width: 100%;
 }
 
-#reset {
-	position: absolute;
-	bottom: 10px;
-	right: 10px;
+#button-box {
+	display: block;
 }
