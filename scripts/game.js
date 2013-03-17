@@ -20,16 +20,22 @@
 		setChannel: function(channel) {
 			this.channel = channel;
 			var self = this;
+			self.resetWorld();
 			if (channel != null) {
+				var turning = vec3.fromValues(-1, 1, -1);
+				
+				if (channel.isCaller)
+					vec3.multiply(self.world.ball.position, self.world.ball.position, turning);
+				
 				$(channel).on('update', function(e, data) {
 					self.world.opposingPaddle.position[0] = -data.paddle.position[0];
 					self.world.opposingPaddle.position[1] = data.paddle.position[1];
 					// Only download ball position if it's not my turn
 					if (self.world.ball.position[2] < 0) {
-						self.world.ball.position = vec3.negate(data.ball.position, data.ball.position);
-						self.world.ball.speed = vec3.negate(data.ball.speed, data.ball.speed);
-						self.world.ball.spin = vec3.negate(data.ball.spin, data.ball.spin);
-						self.world.ball.rotation = vec3.negate(data.ball.rotation, data.ball.rotation);
+						self.world.ball.position = vec3.multiply(data.ball.position, data.ball.position, turning);
+						self.world.ball.speed = vec3.multiply(data.ball.speed, data.ball.speed, turning);
+						self.world.ball.spin = vec3.multiply(data.ball.spin, data.ball.spin, turning);
+						self.world.ball.rotation = vec3.multiply(data.ball.rotation, data.ball.rotation, turning);
 					}
 				});
 			}
