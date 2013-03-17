@@ -108,7 +108,7 @@
 			this.world.paddle.position = [x,y,length / 2];
 			
 			// start ball if it's frozen on my side
-			if (this.world.ball.frozen && this.ball.position[2] > 0) {
+			if (this.world.ball.frozen && this.world.ball.position[2] > 0) {
 				// can we start the ball?
 				if (input.mouse.left && this.world.paddle.touchesBall(this.world.ball)) {
 					this.world.ball.start();
