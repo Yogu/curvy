@@ -3,7 +3,8 @@ var url = require("url");
 var WebSocketServer = require('websocket').server;
 var EventEmitter = require('events').EventEmitter
 
-function start(port,controller) {	
+function start(port,controller) {
+	var server = http.createServer().listen(port);
 	var webSocketServer = new WebSocketServer({
 	    httpServer: server
 	});

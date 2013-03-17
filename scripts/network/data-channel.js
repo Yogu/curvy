@@ -9,6 +9,9 @@ function DataChannel(serverConnection, contact, description) {
 		typeof(webkitRTCPeerConnection) != 'undefined' ? webkitRTCPeerConnection : RTCPeerConnection;
 	
 	var pc = new RTCPeerConnection(configuration, {optional: [{RtpDataChannels: true}]});
+	pc.onerror = function(e) {
+		console.log('RTCPeerConnection error: ' + e);
+	}
 
 	// send any ice candidates to the other peer
 	pc.onicecandidate = function (e) {
@@ -39,7 +42,6 @@ function DataChannel(serverConnection, contact, description) {
 			pc.addIceCandidate(new RTCIceCandidate(data.candidate));
 	});
 	
-	pc.onconnecting = function() { console.log('connecting'); };
 	this.isOpen = false;
 	var isCaller = description === null;
 	
