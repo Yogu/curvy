@@ -25,7 +25,7 @@
 	
 	$.extend(Ball.prototype, Entity.prototype, {
 		update: function(elapsed) {
-			if (this.frozen) {
+			if (this.frozen && this.position[2] > 0) {
 				this.resetIn -= elapsed;
 				if (this.resetIn < 0)
 					this.reset();
