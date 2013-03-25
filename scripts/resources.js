@@ -1,6 +1,6 @@
 "use strict";
 
-self.resources = new (function() {
+function Resources(audioContext) {
 	var self = this;
 	var totalCount = 0;
 	var loadedCount = 0;
@@ -8,6 +8,7 @@ self.resources = new (function() {
 	this.progress = 0;
 	
 	this.materials = registerResource(new Materials('models/material.json'));
+	
 	var models = [
 		'sphere', 'beam', 'paddle'
 	];
@@ -26,6 +27,21 @@ self.resources = new (function() {
 			self.models[name].loadModel();
 		}
 	});
+	
+	// Load sounds
+	var sounds = ['lost', 'paddle', 'opponent-paddle', 'wall', 'wall2'];
+	this.sounds = {};
+	for (var i = 0; i < sounds.length; i++) {
+		var name = sounds[i];
+		var url = 'sounds/' + name + '.ogg';
+		var sound;
+		if (audioContext != null) {
+			sound = registerResource(new Sound(url, audioContext));
+			sound.load();
+		} else
+			sound = {play: function(){}};
+		this.sounds[name] = sound;
+	}
 	
 	function registerResource(obj) {
 		console.log('registered resource');
@@ -52,4 +68,4 @@ self.resources = new (function() {
 		isDone = true;
 		$(self).triggerHandler('load');
 	}
-});
+}

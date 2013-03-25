@@ -67,6 +67,10 @@
 						continue;
 					
 					this.speed[axis] *= -1;
+					if (axis == 2)
+						resources.sounds.paddle.play();
+					else 
+						resources.sounds.wall2.play();
 				}
 			}
 		},
@@ -82,7 +86,7 @@
 			this.speed = [0,0,0];
 			this.spin = [0,0,0];
 			this.frozen = true;
-			this.resetIn = 3;
+			this.resetIn = 1.5;
 			this.mesh.surfaces[0].material = resources.materials.red;
 		},
 		

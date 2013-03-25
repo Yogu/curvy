@@ -99,6 +99,7 @@
 			}, 10000);
 
 			window.showStatus = function(status) {
+				console.log('STATUS: ' + status);
 				clearTimeout(window.loadingTimeout);
 				if (!window.isError) {
 					$('#loading-status').html(status);
@@ -144,5 +145,6 @@
 		<script type="text/javascript" src="scripts/network/server-connection.js"></script>
 		<script type="text/javascript" src="scripts/network/network.js"></script>
 		<script type="text/javascript" src="scripts/ui.js"></script>
+		<script type="text/javascript" src="scripts/audio/sound.js"></script>
 	</body>
 </html>

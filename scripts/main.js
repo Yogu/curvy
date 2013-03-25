@@ -16,17 +16,34 @@
 	window.onload = init;
 	
 	function init() {
-		console.log('Initializing game...');
+		showStatus('Initializing audio...');
+		var audioContext = createAudioContext();
+		if (!audioContext)
+			console.log('WARNING: failed to create audio context');
+		
 		showStatus('Loading resources...');
+		window.resources = new Resources(audioContext);
+
+		showStatus('Initializing video...');
 		renderer = new Renderer(gl);
 		window.renderer = renderer;
+		
 		input = new Input();
-		console.log('Waiting for resources to load...');
+		
+		showStatus('Waiting for resources to load...');
 		$('#progress').text('0%');
 		$(resources).on('progress', function() {
 			$('#progress').text((resources.progress * 100).toFixed(0) + '%');
 		});
 		$(resources).on('load', startLoop);
+	}
+	
+	function createAudioContext() {
+		var audioContextClass = webkitAudioContext || mozAudioContext || AudioContext;
+		if (audioContextClass)
+			return new audioContextClass();
+		else
+			return null;
 	}
 	
 	function initViewport() {
