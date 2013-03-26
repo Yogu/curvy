@@ -101,6 +101,7 @@
 			this.resetIn = 1.5;	
 			this.readyToStart = false;
 			this.mesh.surfaces[0].material = resources.materials.red;
+			resources.sounds.lost.play();
 		},
 		
 		start: function() {
