@@ -1,6 +1,10 @@
 (function() {
 	"use strict";
 	
+	var PHYSICAL_SIZE_FACTOR = 1.1;
+	var WIDTH = 3;
+	var HEIGHT = WIDTH * 0.6;
+	
 	self.Paddle = null;
 	/**
 	 * @constructor
@@ -10,10 +14,10 @@
 		
 		this.world = world;
 		this.mesh = resources.models.paddle.createMesh();
-		this.width = 3;
-		this.height = this.width * 0.6;
+		this.width = WIDTH * PHYSICAL_SIZE_FACTOR;
+		this.height = HEIGHT * PHYSICAL_SIZE_FACTOR;
 		this.mesh.corrections = {
-			scale: [this.width / 2, this.height / 2, 1]
+			scale: [WIDTH / 2, HEIGHT / 2, 1]
 		};
 		this.lastPosition = null;
 		this.speed = [0,0,0];
