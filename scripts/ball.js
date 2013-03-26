@@ -3,6 +3,9 @@
 	
 	var SPEED = 15;
 	var SPEED_INCREASE = 0.2; // m/s per played second
+	var MAX_SPIN_GAIN = 70;
+	var SPIN_GAIN_FACTOR = 0.05;
+	var SPIN_FRICTION = 0;
 	
 	self.Ball = null;
 	/**
@@ -66,6 +69,14 @@
 					} else
 						continue;
 					
+					// spin to speed (from friction)
+					var offset = vec3.scale(vec3.create(), this.spin, SPIN_FRICTION);
+					vec3.add(this.speed, this.speed, offset);
+					// reduce spin (from friction)
+					vec3.subtract(this.spin, this.spin, vec3.scale(vec3.create(), this.spin,
+						0.2));
+					
+					
 					this.speed[axis] *= -1;
 					if (axis == 2)
 						resources.sounds.paddle.play();
@@ -80,13 +91,15 @@
 			this.frozen = true;
 			this.position = [0,0,this.world.max[2] - this.radius];
 			this.mesh.surfaces[0].material = resources.materials.green;	
+			this.readyToStart = true;
 		},
 		
 		stop: function() {
 			this.speed = [0,0,0];
 			this.spin = [0,0,0];
 			this.frozen = true;
-			this.resetIn = 1.5;
+			this.resetIn = 1.5;	
+			this.readyToStart = false;
 			this.mesh.surfaces[0].material = resources.materials.red;
 		},
 		
@@ -95,10 +108,16 @@
 			this.frozen = false;
 			this.mesh.surfaces[0].material = resources.materials.green;
 			this.getSpinFromPaddle();
+			this.readyToStart = false;
 		},
 		
 		getSpinFromPaddle: function() {
-			vec3.add(this.spin, this.spin, vec3.scale(vec3.create(), this.world.paddle.speed, 1));
+			var speed = vec3.clone(this.world.paddle.speed);
+			var signX = speed[0] < 0 ? -1 : 1;
+			var signY = speed[1] < 0 ? -1 : 1;
+			speed[0] = signX * MAX_SPIN_GAIN * (1 - Math.exp(-SPIN_GAIN_FACTOR * Math.abs(speed[0])));
+			speed[1] = signY * MAX_SPIN_GAIN * (1 - Math.exp(-SPIN_GAIN_FACTOR * Math.abs(speed[1])));
+			vec3.add(this.spin, this.spin, speed);
 		}
 	});
 })();

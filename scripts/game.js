@@ -108,12 +108,17 @@
 			this.world.paddle.position = [x,y,length / 2];
 			
 			// start ball if it's frozen on my side
-			if (this.world.ball.frozen && this.world.ball.position[2] > 0) {
-				// can we start the ball?
-				if (input.mouse.left && this.world.paddle.touchesBall(this.world.ball)) {
-					this.world.ball.start();
+			if (input.mouse.left) {
+				if (this.world.ball.readyToStart && this.world.ball.position[2] > 0) {
+					if (this.world.paddle.touchesBall(this.world.ball)) {
+						// don't allow to press mouse and then move onto ball
+						if (!this.mousePressedOutsideBall)
+							this.world.ball.start();
+					} else
+						this.mousePressedOutsideBall = true;
 				}
-			}
+			} else
+				this.mousePressedOutsideBall = false;
 		}
 	};
 })();
