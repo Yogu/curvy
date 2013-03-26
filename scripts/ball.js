@@ -21,6 +21,7 @@
 		this.mesh.corrections = {
 				scale: [this.radius, this.radius, this.radius]
 			};
+		this.position[2] = 1; // choose own side
 		this.reset();
 		this.frozen = true;
 		

@@ -19,14 +19,19 @@
 			$(this.world.ball).on('lost', function() {
 				if (self.channel != null) {
 					self.channel.reliable.send('lost');
-					console.log('player lost ball');
-					self.opponentScore++;
-					$(self).triggerHandler('score');
 				}
+				console.log('player lost ball');
+				self.opponentScore++;
+				$(self).triggerHandler('score');
 			});
 
+			this.resetScore();
+		},
+		
+		resetScore: function() {
 			this.ownScore = 0;
 			this.opponentScore = 0;
+			$(this).triggerHandler('score');
 		},
 		
 		setChannel: function(channel) {
@@ -58,6 +63,7 @@
 					$(self).triggerHandler('score');
 				});
 			}
+			this.resetScore();
 		},
 			
 		/**
