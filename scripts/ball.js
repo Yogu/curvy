@@ -3,6 +3,7 @@
 	
 	var SPEED = 15;
 	var SPEED_INCREASE = 0.2; // m/s per played second
+	var XY_SPEED_DECREASE = 0.05;
 	var MAX_SPIN_GAIN = 70;
 	var SPIN_GAIN_FACTOR = 0.05;
 	var SPIN_FRICTION = 0;
@@ -28,7 +29,7 @@
 	
 	$.extend(Ball.prototype, Entity.prototype, {
 		update: function(elapsed) {
-			if (this.frozen && this.position[2] > 0) {
+			if (this.frozen) {
 				this.resetIn -= elapsed;
 				if (this.resetIn < 0)
 					this.reset();
@@ -46,11 +47,11 @@
 				offset = vec3.scale(vec3.create(), this.speed, elapsed);
 				vec3.add(this.position, this.position, offset);
 				
-				// Increase speed by time
-				var currentSpeed = vec3.length(this.speed);
-				var targetSpeed = currentSpeed + SPEED_INCREASE * elapsed;
-				if (currentSpeed > 0)
-					vec3.scale(this.speed, this.speed, targetSpeed / currentSpeed);
+				// Increase z speed by time
+				this.speed[2] += SPEED_INCREASE * elapsed * (this.speed[2] > 0 ? 1 : -1);
+				// reduce x/y speed by time
+				var factor = 1 - (XY_SPEED_DECREASE * elapsed);
+				vec3.multiply(this.speed, this.speed, vec3.fromValues(factor, factor, 1));
 				
 				for (var axis = 0; axis < 3; axis++) {
 					if (this.position[axis] - this.radius < this.world.min[axis]) {
@@ -62,6 +63,7 @@
 								// apply spin
 								this.getSpinFromPaddle();
 							} else {
+								$(this).triggerHandler('lost');
 								this.stop();
 							}
 						}
@@ -73,8 +75,7 @@
 					var offset = vec3.scale(vec3.create(), this.spin, SPIN_FRICTION);
 					vec3.add(this.speed, this.speed, offset);
 					// reduce spin (from friction)
-					vec3.subtract(this.spin, this.spin, vec3.scale(vec3.create(), this.spin,
-						0.2));
+					vec3.scale(this.spin, this.spin, 0.8);
 					
 					
 					this.speed[axis] *= -1;
@@ -89,7 +90,8 @@
 		reset: function() {
 			this.speed = [0,0,0];
 			this.frozen = true;
-			this.position = [0,0,this.world.max[2] - this.radius];
+			var z = this.position[2] > 0 ? 1 : -1;
+			this.position = [0,0, z * (this.world.max[2] - this.radius)];
 			this.mesh.surfaces[0].material = resources.materials.green;	
 			this.readyToStart = true;
 		},

@@ -14,7 +14,14 @@
 	
 	Game.prototype = {
 		resetWorld: function() {
+			var self = this;
 			this.world = new World();
+			$(this.world.ball).on('lost', function() {
+				if (self.channel != null) {
+					self.channel.send('lost');
+					console.log('player lost ball');
+				}
+			});
 		},
 		
 		setChannel: function(channel) {
@@ -38,6 +45,10 @@
 						self.world.ball.rotation = vec3.multiply(data.ball.rotation, data.ball.rotation, turning);
 						self.world.ball.frozen = data.ball.frozen;
 					}
+				});
+				$(channel).on('lost', function(e, data) {
+					console.log('opponent lost ball');
+					self.world.ball.stop();
 				});
 			}
 		},
