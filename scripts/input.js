@@ -68,7 +68,7 @@ self.Input = function() {
 	});
 	
     document.addEventListener("mousemove", function(e) {
-		if ($('body').hasClass('fullscreen')) {
+		if (document.mozPointerLockElement || document.webkitPointerLockElement || document.pointerLockElement) {
 			var movement = [
 			                e.movementX || e.mozMovementX || e.webkitMovementX || 0,
 			                e.movementY || e.mozMovementY || e.webkitMovementY || 0];

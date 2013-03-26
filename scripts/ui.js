@@ -55,7 +55,7 @@
 			$('#network-status').text('Now playing with ' + controller.channel.contact);
 		$('#contacts li').each(function() {
 			$(this).toggleClass('active', !!channel && channel.contact == $(this).data('contact'));
-		})
+		});
 	});	
 	
 	$(controller).on('reject', function(e, data) {
@@ -65,6 +65,12 @@
 	$(controller).on('remoteclosed', function(e, data) {
 		$('#network-status').text('Connection closed by remote player');
 	});	
+	
+	$(document).on('game', function() {
+		$(game).on('score', function() {
+			$('#score').text(game.ownScore + ' : ' + game.opponentScore);
+		});
+	});
 	
 	function login() {
 		controller.login($('#user').val(),
@@ -100,8 +106,11 @@
         }
 	}
 	
+	// request pointer lock if lost focus and regained
+	document.addEventListener('click', fullscreenchange);
+	
     function fullscreenchange() {
-    	var elem = $('#canvas')[0];
+    	var elem = $('#canvas-wrap')[0];
     	if (document.mozFullscreenElement || document.webkitFullscreenElement || document.fullscreenElement) {
     	    elem.requestPointerLock = elem.requestPointerLock    ||
     	                              elem.mozRequestPointerLock ||
