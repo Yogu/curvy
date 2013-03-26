@@ -2,6 +2,7 @@
 
 //var WEBSOCKET_URL = 'ws://' + document.location.host + '/';
 var WEBSOCKET_URL = 'ws://yogu.dyndns.org:8888/';
+//var WEBSOCKET_URL = 'ws://localhost:8888/';
 
 function ServerConnection(user) {
 	var url = WEBSOCKET_URL + 'connect?user='
@@ -41,6 +42,7 @@ function ServerConnection(user) {
 			var type = obj.type;
 			var data = obj.data ? obj.data : null;
 			$(self).triggerHandler(type, [data]);
+			$(self).triggerHandler('receive', [type, data]);
 		}
 	};
 	

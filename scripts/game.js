@@ -18,10 +18,15 @@
 			this.world = new World();
 			$(this.world.ball).on('lost', function() {
 				if (self.channel != null) {
-					self.channel.send('lost');
+					self.channel.reliable.send('lost');
 					console.log('player lost ball');
+					self.opponentScore++;
+					$(self).triggerHandler('score');
 				}
 			});
+
+			this.ownScore = 0;
+			this.opponentScore = 0;
 		},
 		
 		setChannel: function(channel) {
@@ -46,9 +51,11 @@
 						self.world.ball.frozen = data.ball.frozen;
 					}
 				});
-				$(channel).on('lost', function(e, data) {
+				$(channel.reliable).on('lost', function(e, data) {
 					console.log('opponent lost ball');
 					self.world.ball.stop();
+					self.ownScore++;
+					$(self).triggerHandler('score');
 				});
 			}
 		},

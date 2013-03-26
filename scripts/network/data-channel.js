@@ -126,4 +126,17 @@ function DataChannel(serverConnection, contact, description) {
 		var message = {type: type, data: data};
 		dataChannel.send(JSON.stringify(message));
 	};
+	
+	this.reliable = {
+		send: function(type, data) {
+			serverConnection.send('data', {type: type, data: data, contact: contact});
+		}
+	};
+	$(serverConnection).on('data', function(e, data) {
+		if (data.contact == contact) {
+			if (!data.type)
+				console.log('Invalid data message received: ' + data);
+			$(self.reliable).triggerHandler(data.type, [data.data || null]);
+		}
+	});
 };

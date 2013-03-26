@@ -60,6 +60,11 @@
 		console.log('Initializing game...');
 		game = new Game();
 		window.game = game;
+
+		$(game).on('score', function() {
+			$('#score').text(game.ownScore + ' : ' + game.opponentScore);
+		});
+		
 		initViewport();
 		console.log('Render loop started');
 		$('#splash').hide();

@@ -38,6 +38,21 @@ body {
 	top: 10px;
 }
 
+#score {
+	position: absolute;
+	top: 30px;
+	right: 30px;
+	display: block;
+	padding: 5px 10px;
+	
+	font-size: 30px;
+	font-weight: bold;
+	color: white;
+	background: rgba(255,255,255,0.2);
+	border: 3px solid rgba(255,255,255,0.3);
+	border-radius: 10px;
+}
+
 body > * {
 	font-family: Verdana,sans-serif;
 	font-size: 12px;

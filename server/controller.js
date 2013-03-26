@@ -31,6 +31,7 @@ function accept(client) {
 		case 'reject':
 		case 'candidate':
 		case 'close':
+		case 'data':
 			if (data.contact && data.contact in contacts) {
 				var contact = contacts[data.contact];
 				var client = contact.client;
@@ -38,7 +39,7 @@ function accept(client) {
 				data.contact = name; // was recipient, becomes sender in the answer
 				client.send(type, data);
 			} else
-				console.log('invalid call/accept/reject/candidate/close message');
+				console.log('invalid call/accept/reject/candidate/close/data message');
 			break;
 		default:
 			console.log('invalid message type: ' + type);
