@@ -94,7 +94,7 @@
 	
 	function fullscreen() {
     	$('body').addClass('fullscreen');
-    	var elem = $('#canvas')[0];
+    	var elem = $('#canvas-wrap')[0];
         if (elem.requestFullscreen) {
         	elem.requestFullscreen();
         }
