@@ -4,6 +4,16 @@
 	var controller = new Network();
 	
 	$(function() {
+		var supported = DataChannel.testSupport();
+		
+		if (!supported) {
+			$('#login-box, #contacts-box, #singleplayer').hide();
+			$('#network-disabled-box').show();
+		} else {
+			$('#login-box').show();
+		}
+		$('#button-box').show();
+		
 		$('#login').click(login);
 		$('#logout').click(logout);
 		$('#user').val('Curver' + Math.floor(Math.random() * 900 + 100));

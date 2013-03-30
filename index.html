@@ -61,7 +61,7 @@
 	</head>
 	<body>		
 		<div id="network">
-			<div id="login-box">
+			<div id="login-box" style="display: none;">
 				<h3>Login</h3>
 				<input id="user" type="text" value="" placeholder="Your name" />
 				<button id="login">Login</button>
@@ -73,7 +73,13 @@
 				<p id="no-contacts" style="display: none;">There are currently no other players.</p>
 				<ul id="contacts"></ul>
 			</div>
-			<div id="button-box">
+			<div id="network-disabled-box" style="display: none;">
+				<h3>Multiplayer mode disabled</h3>
+				<p>Sorry, multiplayer mode is not supported on your browser. Curvy uses bleeding-edge
+				features to provide high performance, and they are not yet supported by all browsers.</p>
+				<p><a href="https://www.google.com/intl/de/chrome/browser/beta.html">Download Google Chrome Beta</a></p>
+			</div>
+			<div id="button-box" style="display: none;">
 				<input type="button" id="fullscreen" value="Fullscreen" />
 				<input type="button" id="reset" value="Reset World" />
 				<input type="button" id="singleplayer" value="Play alone" />

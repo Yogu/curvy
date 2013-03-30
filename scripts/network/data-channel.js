@@ -1,20 +1,57 @@
 "use strict";
 
+var RTCPeerConnection = window.mozRTCPeerConnection || window.webkitRTCPeerConnection 
+	|| window.RTCPeerConnection;
+var RTC_CONFIGURATION = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]};
+
 function DataChannel(serverConnection, contact, description) {
 	var self = this;
 	this.contact = contact;
-	var configuration = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]};
 	this.isOpen = false;
 	var isCaller = description === null;
 	this.isCaller = isCaller;
+	var pc = null;
+
+	this.close = function() {
+		if (self.isOpen)
+			self.send('close');
+		
+		if (pc && pc.readyState != 'closed')
+			pc.close();
+		if (dataChannel != null)
+			dataChannel.close();
+		console.log('connection with ' + contact + ' closed');
+		this.isClosed = true;
+	};
 	
-	var RTCPeerConnection = typeof(mozRTCPeerConnection) != 'undefined' ? mozRTCPeerConnection : 
-		typeof(webkitRTCPeerConnection) != 'undefined' ? webkitRTCPeerConnection : RTCPeerConnection;
+	this.send = function(type, data) {
+		if (!self.isOpen) {
+			console.log('Tried to send message, but data channel is closed');
+			return false;
+		}
+		if (!type)
+			throw new Error('Type must be specified');
+		if (!data)
+			data = null;
+		var message = {type: type, data: data};
+		dataChannel.send(JSON.stringify(message));
+	};
+
+	if (!RTCPeerConnection)
+		return showUnsupportedError();
 	
-	var pc = new RTCPeerConnection(configuration, {optional: [{RtpDataChannels: true}]});
+	try {
+		var pc = new RTCPeerConnection(RTC_CONFIGURATION, {optional: [{RtpDataChannels: true}]});
+	} catch (e) {
+		console.error(e);
+		return showUnsupportedError();
+	}
 	pc.onerror = function(e) {
 		console.log('RTCPeerConnection error: ' + e);
 	};
+	
+	if (!pc.createDataChannel)
+		return showUnsupportedError();
 
 	// send any ice candidates to the other peer
 	pc.onicecandidate = function (e) {
@@ -48,7 +85,13 @@ function DataChannel(serverConnection, contact, description) {
 	var dataChannel = null;
 	// reliable data channels not supported by chrome
 	if (isCaller) {
-		setupDataChannel(pc.createDataChannel('data', {reliable: false}));
+		try {
+			dataChannel = pc.createDataChannel('data', {reliable: false});
+		} catch (e) {
+			console.error(e);
+			return showUnsupportedError();
+		}
+		setupDataChannel(dataChannel);
 	} else {
 		pc.ondatachannel = function(e) {
 			setupDataChannel(e.channel);
@@ -102,31 +145,6 @@ function DataChannel(serverConnection, contact, description) {
 		$(self).triggerHandler(obj.type, obj.data || null);
 	};
 	
-	this.close = function() {
-		if (self.isOpen)
-			self.send('close');
-		
-		if (pc.readyState != 'closed')
-			pc.close();
-		if (dataChannel != null)
-			dataChannel.close();
-		console.log('connection with ' + contact + ' closed');
-		this.isClosed = true;
-	};
-	
-	this.send = function(type, data) {
-		if (!self.isOpen) {
-			console.log('Tried to send message, but data channel is closed');
-			return false;
-		}
-		if (!type)
-			throw new Error('Type must be specified');
-		if (!data)
-			data = null;
-		var message = {type: type, data: data};
-		dataChannel.send(JSON.stringify(message));
-	};
-	
 	this.reliable = {
 		send: function(type, data) {
 			serverConnection.emit('data', {type: type, data: data, contact: contact});
@@ -139,4 +157,34 @@ function DataChannel(serverConnection, contact, description) {
 			$(self.reliable).triggerHandler(data.type, [data.data || null]);
 		}
 	});
+};
+
+function showUnsupportedError() {
+	alert('Sorry, Multiplayer mode is not supported on your browser. Please install a browser that ' +
+		'supports RTCDataChannel, for example Google Chrome Beta.');
+}
+
+
+DataChannel.testSupport = function() {
+	if (!RTCPeerConnection)
+		return false;
+	
+	try {
+		var pc = new RTCPeerConnection(RTC_CONFIGURATION, {optional: [{RtpDataChannels: true}]});
+	} catch (e) {
+		console.log(e);
+		return false;
+	}
+	
+	if (!pc.createDataChannel)
+		return false;
+	
+	try {
+		pc.createDataChannel('Test', {reliable: false});
+	} catch (e) {
+		console.log(e);
+		return false;
+	}
+	
+	return true;
 };
