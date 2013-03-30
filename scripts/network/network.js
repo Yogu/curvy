@@ -1,6 +1,6 @@
 "use strict";
 
-var WEBSOCKET_URL = 'http://localhost:8888/';
+var WEBSOCKET_URL = 'http://curvy.herokuapp.com/';
 
 function Network() {
 	this.user = null;
