@@ -1,5 +1,7 @@
 "use strict";
 
+var WEBSOCKET_URL = 'http://localhost:8888/';
+
 function Network() {
 	this.user = null;
 	this.serverConnection = null;
@@ -19,25 +21,32 @@ Network.prototype = {
 		this.user = user;
 		if (this.serverConnection != null)
 			this.logout();
-		this.serverConnection = new ServerConnection(user);
-		$(this.serverConnection).on('name_not_available', function() {
+		this.serverConnection = io.connect(WEBSOCKET_URL, {'force new connection':true});
+		this.serverConnection.on('error', function(data) {
+			console.log('socket.io error: ' + data.message);
+		});
+		this.serverConnection.on('message', function(message) {
+			console.log('received ' + message);
+		});
+		this.serverConnection.emit('login', {user: user});
+		this.serverConnection.on('name_not_available', function() {
 			self.logout();
 			if (error) error();
 		});
-		$(this.serverConnection).on('accepted', function() {
+		this.serverConnection.on('accepted', function() {
 			if (success) success();
 		});
-		$(this.serverConnection).on('contacts', function(e, contacts) {
+		this.serverConnection.on('contacts', function(contacts) {
 			self.contacts = contacts.filter(function(c) { return c != self.user;});
 			$(self).triggerHandler('contacts');
 		});
-		$(this.serverConnection).on('close', function() {
+		this.serverConnection.on('disconnect', function() {
 			$(self).triggerHandler('logout');
 		});
-		$(this.serverConnection).on('call', function(e, data) {
+		this.serverConnection.on('call', function(data) {
 			if (self.channel != null) {
 				console.log('Rejecting call from ' + data.contact + ' because there is already an active channel');
-				self.serverConnection.send('reject', {contact: data.contact, reason: 'busy'});
+				self.serverConnection.emit('reject', {contact: data.contact, reason: 'busy'});
 			} else {
 				console.log('Incoming call from ' + data.contact);
 				$(self).triggerHandler('call', {
@@ -59,7 +68,7 @@ Network.prototype = {
 			this.channel.close();
 		
 		if (this.serverConnection != null)
-			this.serverConnection.close();
+			this.serverConnection.disconnect();
 		this.serverConnection = null;
 		this.channel = null;
 		$(this).triggerHandler('logout');

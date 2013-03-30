@@ -19,20 +19,20 @@ function DataChannel(serverConnection, contact, description) {
 	// send any ice candidates to the other peer
 	pc.onicecandidate = function (e) {
 		if (e.candidate != null) // misterious...
-			serverConnection.send('candidate', {contact: contact, candidate: e.candidate});
+			serverConnection.emit('candidate', {contact: contact, candidate: e.candidate});
 	};
 	
 	function gotDescription(desc) {
 		pc.setLocalDescription(desc);
-		serverConnection.send(isCaller ? 'call' : 'accept', {contact: contact, description: desc});
+		serverConnection.emit(isCaller ? 'call' : 'accept', {contact: contact, description: desc});
 	}
 
-	$(serverConnection).on('accept', function(e, data) {
+	serverConnection.on('accept', function(data) {
 		if (data.contact == contact && !self.isClosed)
 			pc.setRemoteDescription(new RTCSessionDescription(data.description));
 	});
 	
-	$(serverConnection).on('reject', function(e, data) {
+	serverConnection.on('reject', function(data) {
 		if (data.contact == contact && !self.isClosed) {
 			self.isClosed = true;
 			$(self).triggerHandler('reject', data);
@@ -40,7 +40,7 @@ function DataChannel(serverConnection, contact, description) {
 		}
 	});
 	
-	$(serverConnection).on('candidate', function(e, data) {
+	serverConnection.on('candidate', function(data) {
 		if (data.contact == contact && !self.isClosed)
 			pc.addIceCandidate(new RTCIceCandidate(data.candidate));
 	});
@@ -129,10 +129,10 @@ function DataChannel(serverConnection, contact, description) {
 	
 	this.reliable = {
 		send: function(type, data) {
-			serverConnection.send('data', {type: type, data: data, contact: contact});
+			serverConnection.emit('data', {type: type, data: data, contact: contact});
 		}
 	};
-	$(serverConnection).on('data', function(e, data) {
+	serverConnection.on('data', function(data) {
 		if (data.contact == contact) {
 			if (!data.type)
 				console.log('Invalid data message received: ' + data);
