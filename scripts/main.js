@@ -39,11 +39,14 @@
 	}
 	
 	function createAudioContext() {
-		var audioContextClass = webkitAudioContext || mozAudioContext || AudioContext;
+		var audioContextClass = window.webkitAudioContext || window.mozAudioContext
+			|| window.AudioContext || null;
 		if (audioContextClass)
 			return new audioContextClass();
-		else
+		else {
+			console.log('Your browser does not support Audio API - sounds disabled.');
 			return null;
+		}
 	}
 	
 	function initViewport() {
