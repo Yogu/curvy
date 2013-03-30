@@ -4,3 +4,6 @@
 [submodule "scripts/libs/jasmine"]
 	path = scripts/libs/jasmine
 	url = https://github.com/pivotal/jasmine.git
+[submodule "scripts/lib/jasmine"]
+	path = scripts/lib/jasmine
+	url = https://github.com/pivotal/jasmine.git
