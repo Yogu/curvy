@@ -5,16 +5,16 @@ describe('PeerChannel', function() {
 	beforeEach(function() {
 		connector1 = {
 			send: function(type, data) {
-				$(connector2).triggerHandler(type, data);
 				console.log('1 -> 2: ' + type);
 				if (data) console.log(data);
+				$(connector2).triggerHandler(type, data);
 			}
 		};
 		connector2 = {
 			send: function(type, data) {
-				$(connector1).triggerHandler(type, data);
 				console.log('2 -> 1: ' + type);
 				if (data) console.log(data);
+				$(connector1).triggerHandler(type, data);
 			}
 		};
 	});
@@ -35,11 +35,14 @@ describe('PeerChannel', function() {
 	it('should accept connection', function() {
 		var channel1 = new PeerChannel(connector1);
 		var channel2 = new PeerChannel(connector2);
+		channel1.name = '1'; channel2.name = '2';
 		channel1.connect();
 		waitsFor(function() {
 			return channel2.isConnected;
 		}, 'channel2.isConnected should be true');
-		expect(channel2.state).toEqual('connected');
+		runs(function() {
+			expect(channel2.state).toEqual('connected');
+		});
 	});
 	
 	it('should respond on connection', function() {
@@ -49,7 +52,22 @@ describe('PeerChannel', function() {
 		waitsFor(function() {
 			return channel1.isConnected;
 		}, 'channel1.isConnected should be true');
-		expect(channel1.state).toEqual('connected');
+		runs(function() {
+			expect(channel1.state).toEqual('connected');
+		});
+	});
+	
+	it('should use RTCPeerConnection', function() {
+		var channel1 = new PeerChannel(connector1);
+		var channel2 = new PeerChannel(connector2);
+		channel1.name = '1'; channel2.name = '2';
+		channel1.connect();
+		waitsFor(function() {
+			return channel1.isConnected;
+		}, 'channel2.isConnected should be true');
+		runs(function() {
+			expect(channel1.disableRTC).toEqual(false, 'fallback used instead');
+		});
 	});
 	
 	it('should send and receive', function() {
