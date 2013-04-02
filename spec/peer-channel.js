@@ -1,22 +1,33 @@
 describe('PeerChannel', function() {
-	var connector1;
-	var connector2;
+	var connector1 = null;
+	var connector2 = null;
+	
+	/**
+	 * Mock class for a dual-end pipe
+	 */
+	function Connector(name) {
+		var allowedEvents = ['connection', 'data', 'volatile'];
+		
+		this.send = function(type, data) {
+			if (!this.peer)
+				throw new Error('Connector not connected to any peer');
+			if (allowedEvents.indexOf(type) < 0)
+				throw new Error('Invalid event type: ' + type);
+			
+			console.log(this.name + '->' + this.peer.name + ': ' + type);
+			if (data) console.log(data);
+			$(this.peer).triggerHandler(type == 'volatile' ? 'data' : type, data);
+		};
+		this.connectTo = function(peer) {
+			this.peer = peer;
+		};
+	}
 	
 	beforeEach(function() {
-		connector1 = {
-			send: function(type, data) {
-				console.log('1 -> 2: ' + type);
-				if (data) console.log(data);
-				$(connector2).triggerHandler(type, data);
-			}
-		};
-		connector2 = {
-			send: function(type, data) {
-				console.log('2 -> 1: ' + type);
-				if (data) console.log(data);
-				$(connector1).triggerHandler(type, data);
-			}
-		};
+		connector1 = new Connector('1');
+		connector2 = new Connector('2');
+		connector1.connectTo(connector2);
+		connector2.connectTo(connector1);
 	});
 	
 	it('should be disconnected after creation', function() {
@@ -39,7 +50,7 @@ describe('PeerChannel', function() {
 		channel1.connect();
 		waitsFor(function() {
 			return channel2.isConnected;
-		}, 'channel2.isConnected should be true');
+		}, 'channel2.isConnected to be true');
 		runs(function() {
 			expect(channel2.state).toEqual('connected');
 		});
@@ -51,7 +62,7 @@ describe('PeerChannel', function() {
 		channel1.connect();
 		waitsFor(function() {
 			return channel1.isConnected;
-		}, 'channel1.isConnected should be true');
+		}, 'channel1.isConnected to be true');
 		runs(function() {
 			expect(channel1.state).toEqual('connected');
 		});
@@ -64,41 +75,144 @@ describe('PeerChannel', function() {
 		channel1.connect();
 		waitsFor(function() {
 			return channel1.isConnected;
-		}, 'channel2.isConnected should be true');
+		}, 'channel2.isConnected to be true');
 		runs(function() {
-			expect(channel1.disableRTC).toEqual(false, 'fallback used instead');
+			expect(channel1.rtcConnected).toEqual(true);
+		});
+	});
+	
+	it('should not use RTCPeerConnection if disabled on caller side', function() {
+		var channel1 = new PeerChannel(connector1);
+		var channel2 = new PeerChannel(connector2);
+		channel1.name = '1'; channel2.name = '2';
+		channel1.disableRTC = true;
+		channel1.connect();
+		waitsFor(function() {
+			return channel1.isConnected;
+		}, 'channel2.isConnected to be true');
+		runs(function() {
+			expect(channel1.rtcConnected).toEqual(false);
+		});
+	});
+	
+	it('should not use RTCPeerConnection if disabled on callee side', function() {
+		var channel1 = new PeerChannel(connector1);
+		var channel2 = new PeerChannel(connector2);
+		channel1.name = '1'; channel2.name = '2';
+		channel2.disableRTC = true;
+		channel1.connect();
+		waitsFor(function() {
+			return channel1.isConnected;
+		}, 'channel2.isConnected to be true');
+		runs(function() {
+			expect(channel1.rtcConnected).toEqual(false);
 		});
 	});
 	
 	it('should send and receive', function() {
-		var isCalled = false;
-		runs(function() {
-			var channel1 = new PeerChannel(connector1);
-			var channel2 = new PeerChannel(connector2);
-			channel1.connect();
-			$(channel2).on('theevent', function() { isCalled = true; });
-			channel1.send('theevent');
-		});
-		
-		waitsFor(function() { return isCalled;}, "The event listener should be called");
-	});
-	
-	it('should pass data', function() {
 		var isCalled = false;
 		var receivedData = null;
 		var sentData = { param: 'theData', boolean: true, number: 12.4};
 		runs(function() {
 			var channel1 = new PeerChannel(connector1);
 			var channel2 = new PeerChannel(connector2);
+			channel1.name = '1'; channel2.name = '2';
 			channel1.connect();
 			$(channel2).on('theevent', function(e, data) { isCalled = true; receivedData = data; });
 			channel1.send('theevent', sentData);
 		});
 		
-		waitsFor(function() { return isCalled;}, "The event listener should be called");
+		waitsFor(function() { return isCalled;}, "The event listener to be called");
 		
 		runs(function() {
 			expect(receivedData).toEqual(sentData);
-		})
+		});
+	});
+	
+	it('should send and receive before connection is established', function() {
+		var isCalled = false;
+		var receivedData = null;
+		var sentData = { param: 'theData', boolean: true, number: 12.4};
+		runs(function() {
+			var channel1 = new PeerChannel(connector1);
+			var channel2 = new PeerChannel(connector2);
+			channel1.name = '1'; channel2.name = '2';
+			$(channel2).on('theevent', function(e, data) { isCalled = true; receivedData = data; });
+			channel1.send('theevent', sentData);
+		});
+		
+		waitsFor(function() { return isCalled;}, "The event listener to be called");
+		
+		runs(function() {
+			expect(receivedData).toEqual(sentData);
+		});
+	});
+	
+	it('should send and receive volatile messages before connection is established', function() {
+		var isCalled = false;
+		var receivedData = null;
+		var sentData = { param: 'theData', boolean: true, number: 12.4};
+		runs(function() {
+			var channel1 = new PeerChannel(connector1);
+			var channel2 = new PeerChannel(connector2);
+			channel1.name = '1'; channel2.name = '2';
+			$(channel2).on('theevent', function(e, data) { isCalled = true; receivedData = data; });
+			channel1.sendVolatile('theevent', sentData);
+		});
+		
+		waitsFor(function() { return isCalled;}, "The event listener to be called");
+		
+		runs(function() {
+			expect(receivedData).toEqual(sentData);
+		});
+	});
+	
+	it('should send and receive messages without RTC', function() {
+		var isCalled = false;
+		var receivedData = null;
+		var sentData = { param: 'theData', boolean: true, number: 12.4};
+		runs(function() {
+			var channel1 = new PeerChannel(connector1);
+			var channel2 = new PeerChannel(connector2);
+			channel1.name = '1'; channel2.name = '2';
+			channel1.disableRTC = true;
+			channel1.connect();
+			$(channel2).on('theevent', function(e, data) { isCalled = true; receivedData = data; });
+			channel1.sendVolatile('theevent', sentData);
+		});
+		
+		waitsFor(function() { return isCalled;}, "The event listener to be called");
+		
+		runs(function() {
+			expect(receivedData).toEqual(sentData);
+		});
+	});
+	
+	it('send and receive volatile messages over RTC', function() {
+		var isCalled = false;
+		var receivedData = null;
+		var channel1 = null;
+		var channel2 = null;
+		var sentData = { param: 'theData', boolean: true, number: 12.4};
+		runs(function() {
+			channel1 = new PeerChannel(connector1);
+			channel2 = new PeerChannel(connector2);
+			channel1.name = '1'; channel2.name = '2';
+			channel1.connect();
+			$(channel2).on('theevent', function(e, data) { isCalled = true; receivedData = data; });
+		});
+		
+		waitsFor(function() { return channel1.isConnected && channel2.isConnected;},
+				"both channels to be connected");
+		
+		runs(function() {
+			channel1.sendVolatile('theevent', sentData);
+		});
+		
+		waitsFor(function() { return isCalled;}, "The event listener to be called");
+		
+		runs(function() {
+			expect(receivedData).toEqual(sentData);
+		});
 	});
 });

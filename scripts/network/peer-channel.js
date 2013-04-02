@@ -9,41 +9,37 @@ function PeerChannel(connector) {
 	this._connector = connector;
 	this.state = 'disconnected';
 	this.isConnected = false;
-	this._queue = [];
 	this.disableRTC = false;
+	this.rtcConnected = false;
 	
-	$(connector).on('fallback', function(e, data) {
-		if (self.state == 'connecting' || self.state == 'disconnected') {
-			self._connected();
-			self._closeRTC();
-			connector.send('fallback');
+	$(connector).on('connection', function(e, data) {
+		if (data.description) {
+			if (self.state == 'connecting' || self.state == 'disconnected') {
+				if (self.disableRTC || !self._initRTC(data.description)) {
+					self.disableRTC = true;
+					self._connector.send('connection', {fallback: true});
+				}
+			}
+		} else if (data.candidate) {
+			if (self._rtc != null) {
+				var cand = new RTCIceCandidate(data.candidate);
+				console.log('received ice candidate for ' + self.name);
+				console.log(self._dataChannel);
+				self._rtc.addIceCandidate(cand);
+			}
+		} else if (data.fallback) {
+			if (self.state == 'connecting' || self.state == 'disconnected') {
+				self._connected();
+				self._closeRTC();
+				self._connector.send('connection', {fallback: true});
+			}
+		} else if (data.close) {
+			self.close();
 		}
 	});
 	
 	$(connector).on('data', function(e, data) {
 		$(self).triggerHandler(data.event, data.data);
-	});
-	
-	$(connector).on('description', function(e, data) {
-		if (self.state == 'connecting' || self.state == 'disconnected') {
-			if (self.disableRTC || !self._initRTC(data.description)) {
-				self.disableRTC = true;
-				self._connector.send('fallback', null);
-			}
-		}
-	});
-	
-	$(connector).on('candidate', function(e, data) {
-		if (self._rtc != null) {
-			var cand = new RTCIceCandidate(data.candidate);
-			console.log('received ice candidate for ' + self.name);
-			console.log(self._dataChannel);
-			self._rtc.addIceCandidate(cand);
-		}
-	});
-	
-	$(connector).on('close', function(e, data) {
-		self.close();
 	});
 }
 
@@ -54,18 +50,26 @@ PeerChannel.prototype = {
 			if (this.disableRTC || !this._initRTC()) {
 				console.log('connect: fallback');
 				this.disableRTC = true;
-				this._connector.send('fallback', null);
+				this._connector.send('connection', {fallback: true});
 			}
 		}
 	},
 		
 	send: function(event, data) {
 		data = typeof(data) == 'undefined' ? null : data;
+		var message = {event: event, data: data};
 		
-		if (this.isConnected) {
-			this._connector.send('data', {event: event, data: data});
+		this._connector.send('data', message);
+	},
+		
+	sendVolatile: function(event, data) {
+		data = typeof(data) == 'undefined' ? null : data;
+		var message = {event: event, data: data};
+		
+		if (this.rtcConnected) {
+			this._dataChannel.send(JSON.stringify(message));
 		} else {
-			this._queue.push({event: event, data: data});
+			this._connector.send('volatile', message);
 		}
 	},
 	
@@ -73,23 +77,16 @@ PeerChannel.prototype = {
 		console.log(this.name + ' closed');
 		this._closeRTC();
 		if (this.state == 'connecting' || this.state == 'connected')
-			connector.send('close');
+			connector.send('connection', {close: true});
 		this.state = 'disconnected';
 		this.isConnected = false;
+		this.rtcConnected = false;
 	},
 	
 	_connected: function() {
 		console.log(this.name + ' connected');
 		this.state = 'connected';
 		this.isConnected = true;
-		this._sendQueue();
-	},
-	
-	_sendQueue: function() {
-		while (this._queue.length) {
-			var item = this._queue.pop();
-			this.send(item.event, item.data);
-		}
 	},
 	
 	_initRTC: function(description) {
@@ -134,7 +131,7 @@ PeerChannel.prototype = {
 				self._rtc.setLocalDescription(desc);
 				console.log('local description set for ' + self.name);
 				console.log(self._rtc.name);
-				self._connector.send('description', {description: desc});
+				self._connector.send('connection', {description: desc});
 			}
 		}
 
@@ -147,15 +144,29 @@ PeerChannel.prototype = {
 
 		rtc.onicecandidate = function (e) {
 			if (e.candidate != null) // misterious...
-				self._connector.send('candidate', {candidate: e.candidate});
+				self._connector.send('connection', {candidate: e.candidate});
 		};
 		
 		dataChannel.onopen = function() {
+			self.rtcConnected = true;
 			self._connected();
+			dataChannel.onmessage = function(e) {
+				console.log('received rtc message: ' + e.data);
+				try {
+					var obj = JSON.parse(e.data);
+				} catch (e) {
+					console.error('Invalid json over RTC: ' + e);
+					return;
+				}
+				if (!obj.event)
+					console.log('Received RTC message without event: ' + e.data);
+				
+				$(self).triggerHandler(obj.event, obj.data || null);
+			};
 		};
 		
 		dataChannel.onclose = function() {
-			self._close();
+			self.close();
 		};
 
 		this.state = 'connecting';
