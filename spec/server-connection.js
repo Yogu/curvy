@@ -68,4 +68,26 @@ describe('ServerConnection', function() {
 			connection.close();
 		});
 	});
+	
+	it('should free user name on disconnect', function() {
+		var connection = new ServerConnection(uniqueUserName);
+		
+		waitsFor(function() {
+			return connection.isConnected;
+		}, 'first connection to be established');
+		
+		runs(function() {
+			connection.close();
+			connection = new ServerConnection(uniqueUserName);
+		});
+		
+		waitsFor(function() {
+			return connection.state != 'connecting';
+		}, 'state not to equal connecting');
+		runs(function() {
+			expect(connection.isConnected).toBe(true);
+
+			connection.close();
+		});
+	});
 });
