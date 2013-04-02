@@ -61,8 +61,10 @@
 	});
 	
 	$(controller).on('channel', function(e, channel) {
-		if (controller.channel)
+		if (controller.channel) {
 			$('#network-status').text('Now playing with ' + controller.channel.contact);
+			enablePeerPing();
+		}
 		$('#contacts li').each(function() {
 			$(this).toggleClass('active', !!channel && channel.contact == $(this).data('contact'));
 		});
@@ -86,6 +88,7 @@
 		controller.login($('#user').val(),
 			function() {
 				$('#network-status').text('You are now logged in.');
+				enablePing();
 			},
 			function() {
 				// Name not available
@@ -114,6 +117,35 @@
         else if (elem.webkitRequestFullScreen) {
         	elem.webkitRequestFullScreen();
         }
+	}
+	
+	function enablePing() {
+		function pingReceived(millisecs) {
+			$('#server-ping').text('Server Ping: ' + millisecs + 'ms');
+		}
+		
+		var ping = null;
+		ping = function() {
+			if (controller.serverConnection)
+				controller.ping(pingReceived);
+			setTimeout(ping, 1000);
+		}
+		setTimeout(ping, 0);
+	}
+	
+	function peerPingReceived(e, data) {
+		$('#peer-ping').text('Peer Ping: ' + (new Date() - data.sendTime) + 'ms');
+	}
+	
+	function enablePeerPing() {
+		$(controller.channel).off('pingback', peerPingReceived).on('pingback', peerPingReceived);
+		var ping = null;
+		ping = function() {
+			if (controller.channel)
+				controller.channel.send('ping', {sendTime: new Date().getTime()});
+			setTimeout(ping, 1000);
+		}
+		setTimeout(ping, 0);
 	}
 	
 	// request pointer lock if lost focus and regained

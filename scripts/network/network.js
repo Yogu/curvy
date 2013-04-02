@@ -1,6 +1,9 @@
 "use strict";
 
 var WEBSOCKET_URL = 'http://curvy.herokuapp.com/';
+//var WEBSOCKET_URL = 'http://curvy.nodejitsu.com';
+//var WEBSOCKET_URL = 'http://localhost:8888';
+//var WEBSOCKET_URL = 'http://yogu.dyndns.org:8888';
 
 function Network() {
 	this.user = null;
@@ -95,6 +98,17 @@ Network.prototype = {
 		if (this.channel != null) {
 			this.channel.close();
 			//this._setChannel(null);
+		}
+	},
+	
+	ping: function(response) {
+		var time = new Date();
+		if (this.serverConnection) {
+			this.serverConnection.emit('ping');
+			this.serverConnection.once('ping', function() {
+				var delta = new Date() - time;
+				response(delta);
+			});
 		}
 	},
 	

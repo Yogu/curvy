@@ -141,6 +141,10 @@ function DataChannel(serverConnection, contact, description) {
 			self.close();
 			$(self).triggerHandler('close', {reason: 'remote'});
 		}
+
+		if (obj.type == 'ping') {
+			self.send('pingback', obj.data);
+		}
 		
 		$(self).triggerHandler(obj.type, obj.data || null);
 	};
