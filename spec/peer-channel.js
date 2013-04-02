@@ -7,6 +7,7 @@ describe('PeerChannel', function() {
 	 */
 	function Connector(name) {
 		var allowedEvents = ['connection', 'data', 'volatile'];
+		this.name = name;
 		
 		this.send = function(type, data) {
 			if (!this.peer)
@@ -75,9 +76,12 @@ describe('PeerChannel', function() {
 		channel1.connect();
 		waitsFor(function() {
 			return channel1.isConnected;
-		}, 'channel2.isConnected to be true');
+		}, 'channel1.isConnected to be true');
 		runs(function() {
 			expect(channel1.rtcConnected).toEqual(true);
+			
+			channel1.close();
+			channel2.close();
 		});
 	});
 	
@@ -88,8 +92,8 @@ describe('PeerChannel', function() {
 		channel1.disableRTC = true;
 		channel1.connect();
 		waitsFor(function() {
-			return channel1.isConnected;
-		}, 'channel2.isConnected to be true');
+			return channel1.isConnected && channel2.isConnected;
+		}, 'both channels to be connected');
 		runs(function() {
 			expect(channel1.rtcConnected).toEqual(false);
 		});
@@ -98,12 +102,12 @@ describe('PeerChannel', function() {
 	it('should not use RTCPeerConnection if disabled on callee side', function() {
 		var channel1 = new PeerChannel(connector1);
 		var channel2 = new PeerChannel(connector2);
-		channel1.name = '1'; channel2.name = '2';
+		channel1.name = 'a1'; channel2.name = 'a2';
 		channel2.disableRTC = true;
 		channel1.connect();
 		waitsFor(function() {
-			return channel1.isConnected;
-		}, 'channel2.isConnected to be true');
+			return channel1.isConnected && channel2.isConnected;
+		}, 'both channels to be connected');
 		runs(function() {
 			expect(channel1.rtcConnected).toEqual(false);
 		});

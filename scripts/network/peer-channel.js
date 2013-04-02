@@ -29,6 +29,7 @@ function PeerChannel(connector) {
 			}
 		} else if (data.fallback) {
 			if (self.state == 'connecting' || self.state == 'disconnected') {
+				self.disableRTC = true;
 				self._connected();
 				self._closeRTC();
 				self._connector.send('connection', {fallback: true});
@@ -76,11 +77,11 @@ PeerChannel.prototype = {
 	close: function() {
 		console.log(this.name + ' closed');
 		this._closeRTC();
-		if (this.state == 'connecting' || this.state == 'connected')
-			connector.send('connection', {close: true});
 		this.state = 'disconnected';
 		this.isConnected = false;
 		this.rtcConnected = false;
+		if (this.state == 'connecting' || this.state == 'connected')
+			this._connector.send('connection', {close: true});
 	},
 	
 	_connected: function() {
@@ -130,7 +131,6 @@ PeerChannel.prototype = {
 			if (self._rtc) {
 				self._rtc.setLocalDescription(desc);
 				console.log('local description set for ' + self.name);
-				console.log(self._rtc.name);
 				self._connector.send('connection', {description: desc});
 			}
 		}
@@ -166,7 +166,9 @@ PeerChannel.prototype = {
 		};
 		
 		dataChannel.onclose = function() {
-			self.close();
+			// If this connection uses RTC, close it
+			if (!self.disableRTC)
+				self.close();
 		};
 
 		this.state = 'connecting';
