@@ -18,7 +18,7 @@ self.webgl = new (function() {
 		}
 		var context = create3DContext(canvas, opt_attribs);
 		if (!context) {
-			showError(GET_A_WEBGL_BROWSER);
+			showError(OTHER_PROBLEM);
 			throw new Error('Failed to init 3d context');
 		}
 		return context;
@@ -102,17 +102,18 @@ self.webgl = new (function() {
 			throw new Error("*** Error: unknown script element" + scriptId);
 		}
 		shaderSource = shaderScript.text;
-		if (!opt_shaderType) {
+		if (opt_shaderType) {
+			shaderType = opt_shaderType;
+		} else {
 			if (shaderScript.type == "x-shader/x-vertex") {
 				shaderType = gl.VERTEX_SHADER;
 			} else if (shaderScript.type == "x-shader/x-fragment") {
 				shaderType = gl.FRAGMENT_SHADER;
-			} else if (shaderType != gl.VERTEX_SHADER
-					&& shaderType != gl.FRAGMENT_SHADER) {
+			} else {
 				throw new Error("*** Error: unknown shader type");
 				return null;
 			}
 		}
-		return self.loadShader(gl, shaderSource, opt_shaderType ? opt_shaderType : shaderType);
+		return self.loadShader(gl, shaderSource, shaderType);
 	};
 })();

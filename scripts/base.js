@@ -63,7 +63,7 @@ self.debug = new (function() {
 			output += vector[i].toFixed(digits);
 		}
 		return output + "]";
-	}
+	};
 
 	this.log = function(msg) {
 		if (window.console && window.console.log) {
@@ -83,12 +83,12 @@ self.debug = new (function() {
 })();
 
 Array.max = function(array) {
-	return Math.max.apply(null, array)
-}
+	return Math.max.apply(null, array);
+};
 
 Array.min = function(array) {
-	return Math.min.apply(null, array)
-}
+	return Math.min.apply(null, array);
+};
 
 $(document).ajaxError(function(event, jqXHR, ajaxSettings, thrownError) {
 	debug.error('AJAX error: ' + thrownError);

@@ -2,7 +2,6 @@
 
 self.Model = function(url) { 
 	var self = this;
-	var vertexCount;
 	var mesh = null;
 
 	this.isReady = function() { return mesh != null; };
