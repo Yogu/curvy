@@ -42,10 +42,9 @@
 				vec3.add(this.rotation, this.rotation, rotationDiff);
 				
 				// spin to speed
-				var offset = vec3.scale(vec3.create(), this.spin, elapsed);
-				vec3.add(this.speed, this.speed, offset);
+				vec3.add(this.speed, this.speed, rotationDiff);
 				
-				offset = vec3.scale(vec3.create(), this.speed, elapsed);
+				var offset = vec3.scale(vec3.create(), this.speed, elapsed);
 				vec3.add(this.position, this.position, offset);
 				
 				// Increase z speed by time

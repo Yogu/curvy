@@ -25,7 +25,7 @@
 	
 	$.extend(Paddle.prototype, Entity.prototype, {
 		update: function(elapsed) {
-			if (this.lastPosition !== null) {
+			if (this.lastPosition !== null && elapsed > 0.00001) {
 				var newSpeed = [
 				                (this.lastPosition[0] - this.position[0]) / elapsed,
 				                (this.lastPosition[1] - this.position[1]) / elapsed];
