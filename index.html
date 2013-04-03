@@ -59,44 +59,59 @@
 			}
 		</script>
 	</head>
-	<body>		
-		<div id="network">
-			<div id="login-box" style="display: none;">
-				<h3>Login</h3>
-				<input id="user" type="text" value="" placeholder="Your name" />
-				<button id="login">Login</button>
-				<button id="logout" disabled="disabled">Logout</button>
-				<p id="network-status">Enter your name and click Login</p>
-			</div>
-			<div id="contacts-box" style="display: none;">
-				<h3>Other Players</h3>
-				<p id="no-contacts" style="display: none;">There are currently no other players.</p>
-				<ul id="contacts"></ul>
-			</div>
-			<div id="network-disabled-box" style="display: none;">
-				<h3>Multiplayer mode disabled</h3>
-				<p>Sorry, multiplayer mode is not supported on your browser. Curvy uses bleeding-edge
-				features to provide high performance, and they are not yet supported by all browsers.</p>
-				<p><a href="https://www.google.com/intl/de/chrome/browser/beta.html">Download Google Chrome Beta</a></p>
-			</div>
-			<div id="button-box" style="display: none;">
-				<input type="button" id="fullscreen" value="Fullscreen" />
-				<input type="button" id="reset" value="Reset World" />
-				<input type="button" id="singleplayer" value="Play alone" />
-			</div>
-			<div id="incoming-calls"></div>
-			<div id="ping-box"><div id="server-ping"></div><div id="peer-ping"></div></div>
-		</div>
-		
-		<div id="canvas-wrap">
-			<canvas id ="canvas"></canvas>
-			<div id="splash">
+	<body>
+		<div id="wrap">
+			<div id="loading-screen" class="screen active">
 				<h1>curvy</h1>
 				<p id="loading-status">Please enable JavaScript in your browser.</p>
 				<p id="progress"></p>
 			</div>
-			<div id="status" style="display: none;">Loading...</div>
-			<div id="score">0 : 0</div>
+			
+			<div id="start-screen" class="screen">
+				<h1>curvy</h1>
+				<p>Welcome to the curvy ball game!</p>
+				<h2>How to play</h2>
+				<ul>
+					<li>Click to release the ball</li>
+					<li>Move the paddle quickly for spin</li>
+					<li>Don't miss the ball!</li>
+				</ul>
+				
+				<h2>Singleplayer</h2>
+				<div class="buttons"><button id="singleplayer">Start Game</button></div>
+				
+				<h2>Multiplayer</h2>
+				<div class="form">
+					<label for="user">Your name:</label>
+					<input id="user" type="text" value="" placeholder="User Name" />
+					<button id="login">Login</button>
+					<button id="logout" disabled="disabled">Logout</button>
+				</div>
+				<div class="text">
+					<p id="network-status">Enter your name and click Login</p>
+				</div>
+				<h3>Other Players</h3>
+					<p id="no-contacts" style="display: none;">There are currently no other players.</p>
+					<ul id="contacts"></ul>
+					
+				<div id="button-box" style="display: none;">
+				</div>
+				<div id="incoming-calls"></div>
+			</div>
+		
+			<div id="game-screen" class="screen">
+				<canvas id ="canvas"></canvas>
+				<div id="status" style="display: none;">Loading...</div>
+				<div id="score">0 : 0</div>
+				
+				<div id="ping-box"><div id="server-ping"></div><div id="peer-ping"></div></div>
+				
+				<div id="game-buttons">
+					<button id="fullscreen">Fullscreen</button>
+					<button id="reset">Reset World</button>
+					<button id="show-menu">Back to menu</button>
+				</div>
+			</div>
 		</div>
 		
 		<script type="text/javascript">
@@ -148,11 +163,14 @@
 		<script type="text/javascript" src="scripts/network/peer-channel.js"></script>
 		<script type="text/javascript" src="scripts/network/server-connection.js"></script>
 		<script type="text/javascript" src="scripts/audio/sound.js"></script>
-		<script type="text/javascript" src="scripts/main.js"></script>
+		<script type="text/javascript" src="scripts/ui/screen-control.js"></script>
+		<script type="text/javascript" src="scripts/ui/loading-screen.js"></script>
+		<script type="text/javascript" src="scripts/ui/game-screen.js"></script>
+		<script type="text/javascript" src="scripts/ui/start-screen.js"></script>
 		<script type="text/javascript" src="scripts/base.js"></script>
 		<script type="text/javascript" src="scripts/input.js"></script>
 		<script type="text/javascript" src="scripts/resources.js"></script>
 		<script type="text/javascript" src="scripts/game.js"></script>
-		<script type="text/javascript" src="scripts/ui.js"></script>
+		<script type="text/javascript" src="scripts/main.js"></script>
 	</body>
 </html>

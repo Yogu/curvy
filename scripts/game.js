@@ -6,10 +6,37 @@
 	/**
 	 * @constructor Creates the game logic
 	 */
-	Game = function() {
+	Game = function(channel) {
 		this.resetWorld();
-		this.channel = null;
+		this.channel = channel || null;
 		this.timeToNetworkUpdate = 0;
+
+		var self = this;
+		if (channel != null) {
+			var turning = vec3.fromValues(-1, 1, -1);
+			
+			if (channel.isCaller)
+				vec3.multiply(self.world.ball.position, self.world.ball.position, turning);
+			
+			$(channel).on('update', function(e, data) {
+				self.world.opposingPaddle.position[0] = -data.paddle.position[0];
+				self.world.opposingPaddle.position[1] = data.paddle.position[1];
+				// Only download ball position if it's not my turn
+				if (self.world.ball.position[2] < 0) {
+					self.world.ball.position = vec3.multiply(data.ball.position, data.ball.position, turning);
+					self.world.ball.speed = vec3.multiply(data.ball.speed, data.ball.speed, turning);
+					self.world.ball.spin = vec3.multiply(data.ball.spin, data.ball.spin, turning);
+					self.world.ball.rotation = vec3.multiply(data.ball.rotation, data.ball.rotation, turning);
+					self.world.ball.frozen = data.ball.frozen;
+				}
+			});
+			$(channel).on('lost', function(e, data) {
+				console.log('opponent lost ball');
+				self.world.ball.stop();
+				self.ownScore++;
+				$(self).triggerHandler('score');
+			});
+		}
 	};
 	
 	Game.prototype = {
@@ -32,41 +59,6 @@
 			this.ownScore = 0;
 			this.opponentScore = 0;
 			$(this).triggerHandler('score');
-		},
-		
-		setChannel: function(channel) {
-			if (channel != this.channel) {
-				this.channel = channel;
-				var self = this;
-				this.resetWorld();
-				this.resetScore();
-				
-				if (channel != null) {
-					var turning = vec3.fromValues(-1, 1, -1);
-					
-					if (channel.isCaller)
-						vec3.multiply(self.world.ball.position, self.world.ball.position, turning);
-					
-					$(channel).on('update', function(e, data) {
-						self.world.opposingPaddle.position[0] = -data.paddle.position[0];
-						self.world.opposingPaddle.position[1] = data.paddle.position[1];
-						// Only download ball position if it's not my turn
-						if (self.world.ball.position[2] < 0) {
-							self.world.ball.position = vec3.multiply(data.ball.position, data.ball.position, turning);
-							self.world.ball.speed = vec3.multiply(data.ball.speed, data.ball.speed, turning);
-							self.world.ball.spin = vec3.multiply(data.ball.spin, data.ball.spin, turning);
-							self.world.ball.rotation = vec3.multiply(data.ball.rotation, data.ball.rotation, turning);
-							self.world.ball.frozen = data.ball.frozen;
-						}
-					});
-					$(channel).on('lost', function(e, data) {
-						console.log('opponent lost ball');
-						self.world.ball.stop();
-						self.ownScore++;
-						$(self).triggerHandler('score');
-					});
-				}
-			}
 		},
 			
 		/**
