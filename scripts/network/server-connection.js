@@ -10,7 +10,9 @@ function ServerConnection(userName, url) {
 }
 
 //ServerConnection.WEBSOCKET_URL = 'http://curvy.herokuapp.com/';
-ServerConnection.WEBSOCKET_URL = 'http://localhost:8888/';
+//ServerConnection.WEBSOCKET_URL = 'http://curvy-beta.herokuapp.com/';
+//ServerConnection.WEBSOCKET_URL = 'http://localhost:8888/';
+ServerConnection.WEBSOCKET_URL = 'http://yogu.dyndns.org:8888/';
 
 ServerConnection.prototype = {
 	login: function(userName) {
