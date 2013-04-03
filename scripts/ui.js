@@ -82,13 +82,16 @@
 		switch (controller.playerState) {
 		case 'idle':
 			$('#network-status').text('Click on a player to connect');
+			game.setChannel(null);
 			break;
 		case 'calling':
 			$('#network-status').text('Connecting with ' + controller.peer);
+			game.setChannel(null);
 			break;
 		case 'busy':
 			$('#network-status').text('Playing with ' + controller.peer);
 			enablePeerPing();
+			game.setChannel(controller.peerChannel);
 			break;
 		}
 

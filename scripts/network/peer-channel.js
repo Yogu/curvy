@@ -11,6 +11,7 @@ function PeerChannel(connector) {
 	this.isConnected = false;
 	this.disableRTC = false;
 	this.rtcConnected = false;
+	this.isCaller = false;
 	
 	$(connector).on('connection', function(e, data) {
 		if (data.description) {
@@ -29,6 +30,7 @@ function PeerChannel(connector) {
 			}
 		} else if (data.fallback) {
 			if (self.state == 'connecting' || self.state == 'disconnected') {
+				console.log('disabled rtc because of peer');
 				self.disableRTC = true;
 				self._connected();
 				self._closeRTC();
@@ -48,6 +50,7 @@ PeerChannel.prototype = {
 	connect: function() {
 		if (this.state == 'disconnected') {
 			this.state = 'connecting';
+			this.isCaller = true;
 			if (this.disableRTC || !this._initRTC()) {
 				console.log('connect: fallback');
 				this.disableRTC = true;
@@ -155,7 +158,6 @@ PeerChannel.prototype = {
 			self.rtcConnected = true;
 			self._connected();
 			dataChannel.onmessage = function(e) {
-				console.log('received rtc message: ' + e.data);
 				try {
 					var obj = JSON.parse(e.data);
 				} catch (e) {
