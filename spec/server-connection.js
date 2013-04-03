@@ -54,6 +54,30 @@ describe('ServerConnection', function() {
 		});
 	});
 	
+	it('should free user name on disconnect', function() {
+		var userName = getUniqueUserName();
+		
+		var connection = new ServerConnection(userName);
+		
+		waitsFor(function() {
+			return connection.isConnected;
+		}, 'first connection to be established');
+		
+		runs(function() {
+			connection.close();
+			connection = new ServerConnection(userName);
+		});
+		
+		waitsFor(function() {
+			return connection.state != 'connecting';
+		}, 'state not to equal connecting');
+		runs(function() {
+			expect(connection.isConnected).toBe(true);
+
+			connection.close();
+		});
+	});
+	
 	it('should receive player list', function() {
 		var connection = new ServerConnection(getUniqueUserName());
 		
@@ -78,25 +102,33 @@ describe('ServerConnection', function() {
 		});
 	});
 	
-	it('should free user name on disconnect', function() {
+	it('should respond to ping', function() {
 		var userName = getUniqueUserName();
 		
 		var connection = new ServerConnection(userName);
 		
 		waitsFor(function() {
 			return connection.isConnected;
-		}, 'first connection to be established');
+		}, 'connection to be established');
+		
+		var pingReceived = false;
+		var pingTime = null;
+		$(connection).on('ping', function(e, data) {
+			pingReceived = true;
+			pingTime = data;
+		});
 		
 		runs(function() {
-			connection.close();
-			connection = new ServerConnection(userName);
+			connection.doPing();
 		});
 		
 		waitsFor(function() {
-			return connection.state != 'connecting';
-		}, 'state not to equal connecting');
+			return pingReceived;
+		}, 'pingback to be received');
+		
 		runs(function() {
-			expect(connection.isConnected).toBe(true);
+			expect(typeof(pingTime)).toBe('number');
+			expect(typeof(connection.pingTime)).toBe('number');
 
 			connection.close();
 		});

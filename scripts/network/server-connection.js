@@ -32,6 +32,12 @@ function ServerConnection(userName, url) {
 		console.log('socket.io connection failed');
 	});
 	
+	// ping
+	this._socket.on('pingback', function(data) {
+		self.pingTime = new Date() - data.sendTime;
+		$(self).triggerHandler('ping', self.pingTime);
+	});
+	
 	// login
 	this._socket.on('name_not_available', function(data) {
 		self._setState('name_not_available');
@@ -114,6 +120,10 @@ ServerConnection.prototype = {
 	hangup: function() {
 		this._setPlayerState('idle');
 		this._socket.emit('hangup');
+	},
+	
+	doPing: function() {
+		this._send('ping', {sendTime: new Date().getTime()});
 	},
 	
 	_send: function(type, data) {
