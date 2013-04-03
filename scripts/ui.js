@@ -1,17 +1,10 @@
 "use strict";
 
 (function() {
-	var controller = new Network();
+	var controller = new ServerConnection();
 	
 	$(function() {
-		var supported = DataChannel.testSupport();
-		
-		if (!supported) {
-			$('#login-box, #contacts-box, #singleplayer').hide();
-			$('#network-disabled-box').show();
-		} else {
-			$('#login-box').show();
-		}
+		$('#login-box').show();
 		$('#button-box').show();
 		
 		$('#login').click(login);
@@ -27,56 +20,90 @@
 		document.addEventListener('fullscreenchange', fullscreenchange, false);
 	});
 	
-	$(controller).on('contacts', function() {
+	$(controller).on('players', function() {
 		$('#contacts').empty();
-		$(controller.contacts).each(function() {
-			var contact = this;
-				$('<a>').attr('href', 'call').text(contact).click(callThis).appendTo(
-					$('<li>').appendTo($('#contacts')).data('contact', contact));
+		$(controller.players).each(function() {
+			var contact = this.name;
+			var a = $('<a>').attr('href', 'call').text(contact).click(callThis);
+			var li = $('<li>').appendTo($('#contacts')).data('contact', contact);
+			a.appendTo(li);;
+			li.toggleClass('active', contact == controller.name);
+			li.toggleClass('busy', contact != controller.name && this.state == 'busy');
 			function callThis(e) {
 				e.preventDefault();
-				controller.call(contact); 
-				if (!controller.channel || controller.channel.contact != contact)
-					$('#network-status').text('Connecting with ' + contact + '...');
+				controller.call(contact);
 			}
 		});
-		if (controller.contacts.length == 0)
+		if (controller.players.length == 0)
 			$('#no-contacts').show();
 		else
 			$('#no-contacts').hide();
 		$('#contacts-box').show();
 	});
 	
-	$(controller).on('logout', function() {
-		$('#logout').attr('disabled', 'disabled');
-		$('#login, #user').removeAttr('disabled');
-		$('#network-status').text('You are logged out.');
-		$('#contacts-box').hide();
+	$(controller).on('statechange', function() {
+		switch(controller.state) {
+		case 'connected':
+			$('#login, #user').attr('disabled', 'disabled');
+			$('#logout').removeAttr('disabled');
+			$('#network-status').text('Click on a player to connect');
+			$('#contacts-box').show();
+			break;
+		case 'connecting':
+			$('#login, #user').attr('disabled', 'disabled');
+			$('#logout').removeAttr('disabled');
+			$('#network-status').text('Connecting...');
+			$('#contacts-box').hide();
+			break;
+		default:
+			switch (controller.state) {
+			case 'disconnected':
+				$('#network-status').text('Enter your name and log in');
+				break;
+			case 'name_not_available':
+				$('#network-status').text('Sorry, name not available. Please choose a different one.');
+				break;
+			default:
+				$('#network-status').text('Connection failed');
+				break;
+			}
+			$('#logout').attr('disabled', 'disabled');
+			$('#login, #user').removeAttr('disabled');
+			$('#contacts-box').hide();
+		}
 	});
 	
 	$(controller).on('call', function(e, call) {
 		console.log(call);
-		call.accept();
-		$('#network-status').text('Accepted request from ' + call.caller);
+		showIncomingCall(call);
 	});
 	
-	$(controller).on('channel', function(e, channel) {
-		if (controller.channel) {
-			$('#network-status').text('Now playing with ' + controller.channel.contact);
+	$(controller).on('playerstatechange', function() {
+		switch (controller.playerState) {
+		case 'idle':
+			$('#network-status').text('Click on a player to connect');
+			break;
+		case 'calling':
+			$('#network-status').text('Connecting with ' + controller.peer);
+			break;
+		case 'busy':
+			$('#network-status').text('Playing with ' + controller.peer);
 			enablePeerPing();
+			break;
 		}
+
 		$('#contacts li').each(function() {
-			$(this).toggleClass('active', !!channel && channel.contact == $(this).data('contact'));
+			$(this).toggleClass('active', controller.peer == $(this).data('contact'));
 		});
-	});	
+	});
 	
-	$(controller).on('reject', function(e, data) {
-		$('#network-status').text('Connection rejected by ' + data.contact + ' (reason: ' + data.reason + ')');
-	});	
-	
-	$(controller).on('remoteclosed', function(e, data) {
-		$('#network-status').text('Connection closed by remote player');
-	});	
+	setInterval(function() {
+		if (controller.isConnected)
+			controller.doPing(); 
+	}, 1000);
+	$(controller).on('ping', function(e, pingTime) {
+		$('#server-ping').text('Server Ping: ' + pingTime + 'ms');
+	});
 	
 	$(document).on('game', function() {
 		$(game).on('score', function() {
@@ -85,24 +112,11 @@
 	});
 	
 	function login() {
-		controller.login($('#user').val(),
-			function() {
-				$('#network-status').text('You are now logged in.');
-				enablePing();
-			},
-			function() {
-				// Name not available
-				logout();
-				$('#network-status').text('This name is not available. Please choose a different one.');
-			});
-
-		$('#logout').removeAttr('disabled');
-		$('#login, #user').attr('disabled', 'disabled');
-		$('#network-status').text('Logging in...');
+		controller.login($('#user').val());
 	}
 	
 	function logout() {
-		controller.logout();
+		controller.close();
 	}
 	
 	function fullscreen() {
@@ -119,32 +133,19 @@
         }
 	}
 	
-	function enablePing() {
-		function pingReceived(millisecs) {
-			$('#server-ping').text('Server Ping: ' + millisecs + 'ms');
-		}
-		
-		var ping = null;
-		ping = function() {
-			if (controller.serverConnection)
-				controller.ping(pingReceived);
-			setTimeout(ping, 1000);
-		}
-		setTimeout(ping, 0);
-	}
-	
-	function peerPingReceived(e, data) {
-		$('#peer-ping').text('Peer Ping: ' + (new Date() - data.sendTime) + 'ms');
+	function peerPingReceived(e, pingTime) {
+		$('#peer-ping').text('Peer Ping: ' + pingTime + 'ms');
 	}
 	
 	function enablePeerPing() {
-		$(controller.channel).off('pingback', peerPingReceived).on('pingback', peerPingReceived);
+		$(controller.peerChannel).off('ping', peerPingReceived).on('ping', peerPingReceived);
 		var ping = null;
 		ping = function() {
-			if (controller.channel)
-				controller.channel.send('ping', {sendTime: new Date().getTime()});
-			setTimeout(ping, 1000);
-		}
+			if (controller.peerChannel) {
+				controller.peerChannel.doPing();
+				setTimeout(ping, 1000);
+			}
+		};
 		setTimeout(ping, 0);
 	}
 	
@@ -164,7 +165,23 @@
     }
     
     function enterSingleplayerMode() {
-    	controller.closeChannel();
-    	$('#network-status').text('Now playing alone');
+    	if (controller.isConnected)
+    		controller.hangup();
+    }
+    
+    function showIncomingCall(call) {
+    	var div = $('<div>');
+    	$('<span>').appendTo(div).addClass('title').text(call.sender + ' wants to play with you');
+    	var accept = $('<button>').appendTo(div).addClass('accept').text('Accept');
+    	var reject = $('<button>').appendTo(div).addClass('accept').text('Reject');
+    	accept.click(function() {
+    		call.accept();
+    		div.remove();
+    	});
+    	reject.click(function() {
+    		call.reject();
+    		div.remove();
+    	});
+    	$('#incoming-calls').append(div);
     }
 })();

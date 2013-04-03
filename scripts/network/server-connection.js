@@ -9,7 +9,8 @@ function ServerConnection(userName, url) {
 	this.url = (typeof(url) == 'undefined') ? ServerConnection.WEBSOCKET_URL : url;
 }
 
-ServerConnection.WEBSOCKET_URL = 'http://curvy.herokuapp.com/';
+//ServerConnection.WEBSOCKET_URL = 'http://curvy.herokuapp.com/';
+ServerConnection.WEBSOCKET_URL = 'http://localhost:8888/';
 
 ServerConnection.prototype = {
 	login: function(userName) {
@@ -119,8 +120,10 @@ ServerConnection.prototype = {
 	call: function(callee) {
 		if (!this.isConnected)
 			throw new Error("tried to call, but is not connected");
-		this._setPlayerState('calling', callee);
-		this._socket.emit('call', {recipient: callee});
+		if (this.state == 'idle' || this.peer != callee) {
+			this._setPlayerState('calling', callee);
+			this._socket.emit('call', {recipient: callee});
+		}
 	},
 	
 	hangup: function() {

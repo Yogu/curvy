@@ -130,8 +130,14 @@ a:hover {
 	margin: 0 0 1em;
 }
 
-#contacts .active {
+#contacts .active,
+#contacts .active.busy {
 	font-weight: bold;
+	text-decoration: none;
+}
+
+#contacts .busy {
+	text-decoration: line-through;
 }
 
 #network input[type=text] {
