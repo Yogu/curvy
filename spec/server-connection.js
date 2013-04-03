@@ -391,4 +391,102 @@ describe('ServerConnection', function() {
 			connection3.close();
 		});
 	});
+	
+	it('should establish a connector when call accepted', function() {
+		var connection1 = new ServerConnection(getUniqueUserName());
+		var connection2 = new ServerConnection(getUniqueUserName());
+		
+		waitsFor(function() {
+			return connection1.isConnected && connection2.isConnected;
+		}, 'both connections to be established');
+
+		var user2Called = false;
+		$(connection2).on('call', function(e, call) {
+			if (call.sender == connection1.userName) {
+				user2Called = true;
+				call.accept();
+			}
+		});
+		
+		var sentData = {test: 123};
+
+		var callAccepted = false;
+		$(connection1).on('accept', function(e, data) {
+			callAccepted = true;
+			// connection events with invalid data will be ignored by the peer channel
+			connection1.connector.send('connection', sentData);
+		});
+		
+		var eventReceived = false;
+		$(connection2).on('accept', function(e, data) {
+			$(connection2.connector).on('connection', function(e, data) {
+				if(data && data.test == 123)
+					eventReceived = true;
+			});
+		});
+		
+		runs(function() {
+			connection1.call(connection2.userName);
+		});
+		
+		waitsFor(function() {
+			return user2Called;
+		}, 'user2 to be called');
+		
+		waitsFor(function() {
+			return callAccepted;
+		}, 'call to be accepted');
+		
+		waitsFor(function() {
+			return eventReceived;
+		}, 'data to be retrieved by user1');
+		
+		runs(function() {
+			connection1.close();
+			connection2.close();
+		});
+	});
+	
+	it('should establish a peer channel when call accepted', function() {
+		var connection1 = new ServerConnection(getUniqueUserName());
+		var connection2 = new ServerConnection(getUniqueUserName());
+		
+		waitsFor(function() {
+			return connection1.isConnected && connection2.isConnected;
+		}, 'both connections to be established');
+
+		var user2Called = false;
+		$(connection2).on('call', function(e, call) {
+			if (call.sender == connection1.userName) {
+				user2Called = true;
+				call.accept();
+			}
+		});
+
+		var callAccepted = false;
+		$(connection1).on('accept', function(e, data) {
+			callAccepted = true;
+		});
+		
+		runs(function() {
+			connection1.call(connection2.userName);
+		});
+		
+		waitsFor(function() {
+			return user2Called;
+		}, 'user2 to be called');
+		
+		waitsFor(function() {
+			return callAccepted;
+		}, 'call to be accepted');
+		
+		waitsFor(function() {
+			return connection1.peerChannel.isConnected && connection2.peerChannel.isConnected;
+		}, 'peer channel to be connected');
+		
+		runs(function() {
+			connection1.close();
+			connection2.close();
+		});
+	});
 });

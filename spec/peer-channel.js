@@ -16,6 +16,7 @@ describe('PeerChannel', function() {
 				throw new Error('Invalid event type: ' + type);
 			
 			console.log(this.name + '->' + this.peer.name + ': ' + type);
+			data = JSON.parse(JSON.stringify(data));
 			if (data) console.log(data);
 			$(this.peer).triggerHandler(type == 'volatile' ? 'data' : type, data);
 		};

@@ -94,7 +94,7 @@ PeerChannel.prototype = {
 		if (this._rtc) {
 			if (description) {
 				console.log('remote description set for ' + this.name);
-				this._rtc.setRemoteDescription(description);
+				this._rtc.setRemoteDescription(new RTCSessionDescription(description));
 			}
 			return true;
 		}
@@ -136,7 +136,7 @@ PeerChannel.prototype = {
 		}
 
 		if (description) {
-			rtc.setRemoteDescription(description);
+			rtc.setRemoteDescription(new RTCSessionDescription(description));
 			console.log('remote description set for ' + self.name);
 			rtc.createAnswer(gotDescription);
 		} else
