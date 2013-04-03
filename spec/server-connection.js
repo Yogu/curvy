@@ -7,8 +7,17 @@ describe('ServerConnection', function() {
 		ServerConnection.WEBSOCKET_URL = 'http://localhost:8888';	
 	});
 	
-	it('should be connecting after creation', function() {
+	it('should be diconnected after creation', function() {
 		var connection = new ServerConnection('user');
+		expect(connection.state).toEqual('disconnected');
+		expect(connection.isConnected).toEqual(false);
+		
+		connection.close();
+	});
+	
+	it('should be connecting after login()', function() {
+		var connection = new ServerConnection();
+		connection.login('user');
 		expect(connection.state).toEqual('connecting');
 		expect(connection.isConnected).toEqual(false);
 		
@@ -16,7 +25,8 @@ describe('ServerConnection', function() {
 	});
 	
 	it('should connect', function() {
-		var connection = new ServerConnection(getUniqueUserName());
+		var connection = new ServerConnection();
+		connection.login(getUniqueUserName());
 		
 		waitsFor(function() {
 			return connection.isConnected;
@@ -32,15 +42,16 @@ describe('ServerConnection', function() {
 	it('should not connect if user name is not available', function() {
 		var userName = getUniqueUserName();
 		
-		var connection1 = new ServerConnection(userName);
-		var connection2 = null;
+		var connection1 = new ServerConnection();
+		connection1.login(userName);
+		var connection2 = new ServerConnection();
 		
 		waitsFor(function() {
 			return connection1.isConnected;
 		}, 'first connection to be established');
 		
 		runs(function() {
-			connection2 = new ServerConnection(userName);
+			connection2.login(userName);
 		});
 		
 		waitsFor(function() {
@@ -57,15 +68,15 @@ describe('ServerConnection', function() {
 	it('should free user name on disconnect', function() {
 		var userName = getUniqueUserName();
 		
-		var connection = new ServerConnection(userName);
+		var connection = new ServerConnection();
+		connection.login(userName);
 		
 		waitsFor(function() {
 			return connection.isConnected;
 		}, 'first connection to be established');
 		
 		runs(function() {
-			connection.close();
-			connection = new ServerConnection(userName);
+			connection.login(userName);
 		});
 		
 		waitsFor(function() {
@@ -79,7 +90,8 @@ describe('ServerConnection', function() {
 	});
 	
 	it('should receive player list', function() {
-		var connection = new ServerConnection(getUniqueUserName());
+		var connection = new ServerConnection();
+		connection.login(getUniqueUserName());
 		
 		var playersListReceived = false;
 		$(connection).on('players', function(e, contacts) {
@@ -104,8 +116,9 @@ describe('ServerConnection', function() {
 	
 	it('should respond to ping', function() {
 		var userName = getUniqueUserName();
-		
-		var connection = new ServerConnection(userName);
+
+		var connection = new ServerConnection();
+		connection.login(getUniqueUserName());
 		
 		waitsFor(function() {
 			return connection.isConnected;
@@ -135,8 +148,10 @@ describe('ServerConnection', function() {
 	});
 	
 	it('should allow to call a player', function() {
-		var connection1 = new ServerConnection(getUniqueUserName());
-		var connection2 = new ServerConnection(getUniqueUserName());
+		var connection1 = new ServerConnection();
+		connection1.login(getUniqueUserName());
+		var connection2 = new ServerConnection();
+		connection2.login(getUniqueUserName());
 
 		var user2Called = false;
 		$(connection2).on('call', function(e, data) {
@@ -178,8 +193,10 @@ describe('ServerConnection', function() {
 	});
 	
 	it('should allow to reject a call', function() {
-		var connection1 = new ServerConnection(getUniqueUserName());
-		var connection2 = new ServerConnection(getUniqueUserName());
+		var connection1 = new ServerConnection();
+		connection1.login(getUniqueUserName());
+		var connection2 = new ServerConnection();
+		connection2.login(getUniqueUserName());
 		
 		waitsFor(function() {
 			return connection1.isConnected && connection2.isConnected;
@@ -219,8 +236,10 @@ describe('ServerConnection', function() {
 	});
 	
 	it('should allow to accept a call', function() {
-		var connection1 = new ServerConnection(getUniqueUserName());
-		var connection2 = new ServerConnection(getUniqueUserName());
+		var connection1 = new ServerConnection();
+		connection1.login(getUniqueUserName());
+		var connection2 = new ServerConnection();
+		connection2.login(getUniqueUserName());
 		
 		waitsFor(function() {
 			return connection1.isConnected && connection2.isConnected;
@@ -275,8 +294,10 @@ describe('ServerConnection', function() {
 	});
 	
 	it('should allow to hang up', function() {
-		var connection1 = new ServerConnection(getUniqueUserName());
-		var connection2 = new ServerConnection(getUniqueUserName());
+		var connection1 = new ServerConnection();
+		connection1.login(getUniqueUserName());
+		var connection2 = new ServerConnection();
+		connection2.login(getUniqueUserName());
 		
 		waitsFor(function() {
 			return connection1.isConnected && connection2.isConnected;
@@ -349,9 +370,12 @@ describe('ServerConnection', function() {
 	});
 	
 	it('should hang up call between A and B when A calls C', function() {
-		var connection1 = new ServerConnection(getUniqueUserName());
-		var connection2 = new ServerConnection(getUniqueUserName());
-		var connection3 = new ServerConnection(getUniqueUserName());
+		var connection1 = new ServerConnection();
+		connection1.login(getUniqueUserName());
+		var connection2 = new ServerConnection();
+		connection2.login(getUniqueUserName());
+		var connection3 = new ServerConnection();
+		connection3.login(getUniqueUserName());
 		
 		waitsFor(function() {
 			return connection1.isConnected && connection2.isConnected && connection3.isConnected;
@@ -425,8 +449,10 @@ describe('ServerConnection', function() {
 	});
 	
 	it('should establish a connector when call accepted', function() {
-		var connection1 = new ServerConnection(getUniqueUserName());
-		var connection2 = new ServerConnection(getUniqueUserName());
+		var connection1 = new ServerConnection();
+		connection1.login(getUniqueUserName());
+		var connection2 = new ServerConnection();
+		connection2.login(getUniqueUserName());
 		
 		waitsFor(function() {
 			return connection1.isConnected && connection2.isConnected;
@@ -480,8 +506,10 @@ describe('ServerConnection', function() {
 	});
 	
 	it('should establish a peer channel when call accepted', function() {
-		var connection1 = new ServerConnection(getUniqueUserName());
-		var connection2 = new ServerConnection(getUniqueUserName());
+		var connection1 = new ServerConnection();
+		connection1.login(getUniqueUserName());
+		var connection2 = new ServerConnection();
+		connection2.login(getUniqueUserName());
 		
 		waitsFor(function() {
 			return connection1.isConnected && connection2.isConnected;

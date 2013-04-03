@@ -1,103 +1,109 @@
 "use strict";
 
 function ServerConnection(userName, url) {
-	var self = this;
-	this.userName = userName;
-	this.state = 'connecting';
+	this.state = 'disconnected';
 	this.isConnected = false;
 	this.playerState = 'idle';
 	this.peer = null;
 	this._isCaller = false; // controls master/slave peer channel
-
-	url = (typeof(url) == 'undefined') ? ServerConnection.WEBSOCKET_URL : url;
-	this._socket = io.connect(url, {'force new connection':true});
-
-	// connection
-	this._socket.on('error', function(data) {
-		console.error('socket.io error: ' + data);
-	});
-	this._socket.on('err', function(data) {
-		console.error('server sent error: ' + data.message);
-	});
-	this._socket.on('disconnect', function(data) {
-		console.log('socket.io disconnected');
-		if (self.state != 'name_not_available')
-			self._setState('disconnected');
-	});
-	this._socket.on('connect', function() {
-		console.log('socket.io connected');
-	});
-	this._socket.on('connect_failed', function() {
-		self._setState('connect_failed');
-		console.log('socket.io connection failed');
-	});
-	
-	// ping
-	this._socket.on('pingback', function(data) {
-		self.pingTime = new Date() - data.sendTime;
-		$(self).triggerHandler('ping', self.pingTime);
-	});
-	
-	// login
-	this._socket.on('name_not_available', function(data) {
-		self._setState('name_not_available');
-	});
-	this._socket.on('accepted', function(data) {
-		self._setState('connected');
-	});
-	
-	// player list
-	this._socket.on('players', function(players) {
-		self.players = players.filter(function(p) { return p.name != self.userName;});
-		$(self).triggerHandler('players');
-	});
-	
-	// calls
-	this._socket.on('call', function(data) {
-		data.accept = function() {
-			self._socket.emit('call', {recipient: data.sender});
-		};
-		data.reject = function() {
-			self._socket.emit('reject', {recipient: data.sender});
-		};
-		$(self).triggerHandler('call', data);
-	});
-	this._socket.on('accept', function(data) {
-		self._isCaller = data.isCaller;
-		self._setPlayerState('busy', data.sender);
-		$(self).triggerHandler('accept', data);
-	});
-	this._socket.on('reject', function(data) {
-		// ignore invalid reject messages
-		if (self.playerState == 'calling' && self.peer == data.sender) {
-			self._setPlayerState('idle');
-			$(self).triggerHandler('reject', data);
-		}
-	});
-	this._socket.on('hangup', function(data) {
-		if (self.playerState == 'busy') {
-			self._setPlayerState('idle');
-			$(self).triggerHandler('hangup', data);
-		}
-	});
-	
-	var setConnectorHandler = function(type) {
-		self._socket.on(type, function(data) {
-			if (self.connector && self.connector.peer == data.sender)
-				$(self.connector).triggerHandler(type, data.data);
-		});
-	};
-	var connectorEvents = ['connection', 'data', 'volatile'];
-	for (var i = 0; i < connectorEvents.length; i++) {
-		setConnectorHandler(connectorEvents[i]); 
-	}
-
-	self._socket.emit('login', {user: userName});
+	this.url = (typeof(url) == 'undefined') ? ServerConnection.WEBSOCKET_URL : url;
 }
 
 ServerConnection.WEBSOCKET_URL = 'http://curvy.herokuapp.com/';
 
 ServerConnection.prototype = {
+	login: function(userName) {
+		var self = this;
+		if (this._socket)
+			this.close();
+		this._socket = io.connect(this.url, {'force new connection':true});
+
+		this.userName = userName;
+
+		// connection
+		this._socket.on('error', function(data) {
+			console.error('socket.io error: ' + data);
+		});
+		this._socket.on('err', function(data) {
+			console.error('server sent error: ' + data.message);
+		});
+		this._socket.on('disconnect', function(data) {
+			console.log('socket.io disconnected');
+			if (self.state != 'name_not_available')
+				self._setState('disconnected');
+		});
+		this._socket.on('connect', function() {
+			console.log('socket.io connected');
+		});
+		this._socket.on('connect_failed', function() {
+			self._setState('connect_failed');
+			console.log('socket.io connection failed');
+		});
+		
+		// ping
+		this._socket.on('pingback', function(data) {
+			self.pingTime = new Date() - data.sendTime;
+			$(self).triggerHandler('ping', self.pingTime);
+		});
+		
+		// login
+		this._socket.on('name_not_available', function(data) {
+			self._setState('name_not_available');
+		});
+		this._socket.on('accepted', function(data) {
+			self._setState('connected');
+		});
+		
+		// player list
+		this._socket.on('players', function(players) {
+			self.players = players.filter(function(p) { return p.name != self.userName;});
+			$(self).triggerHandler('players');
+		});
+		
+		// calls
+		this._socket.on('call', function(data) {
+			data.accept = function() {
+				self._socket.emit('call', {recipient: data.sender});
+			};
+			data.reject = function() {
+				self._socket.emit('reject', {recipient: data.sender});
+			};
+			$(self).triggerHandler('call', data);
+		});
+		this._socket.on('accept', function(data) {
+			self._isCaller = data.isCaller;
+			self._setPlayerState('busy', data.sender);
+			$(self).triggerHandler('accept', data);
+		});
+		this._socket.on('reject', function(data) {
+			// ignore invalid reject messages
+			if (self.playerState == 'calling' && self.peer == data.sender) {
+				self._setPlayerState('idle');
+				$(self).triggerHandler('reject', data);
+			}
+		});
+		this._socket.on('hangup', function(data) {
+			if (self.playerState == 'busy') {
+				self._setPlayerState('idle');
+				$(self).triggerHandler('hangup', data);
+			}
+		});
+		
+		var setConnectorHandler = function(type) {
+			self._socket.on(type, function(data) {
+				if (self.connector && self.connector.peer == data.sender)
+					$(self.connector).triggerHandler(type, data.data);
+			});
+		};
+		var connectorEvents = ['connection', 'data', 'volatile'];
+		for (var i = 0; i < connectorEvents.length; i++) {
+			setConnectorHandler(connectorEvents[i]); 
+		}
+
+		this._setState('connecting');
+		this._socket.emit('login', {user: userName});
+	},
+		
 	close: function() {
 		if (this._socket) {
 			try  {
@@ -118,6 +124,8 @@ ServerConnection.prototype = {
 	},
 	
 	hangup: function() {
+		if (!this.isConnected)
+			throw new Error("tried to call, but is not connected");
 		this._setPlayerState('idle');
 		this._socket.emit('hangup');
 	},
