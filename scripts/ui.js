@@ -41,13 +41,32 @@
 		$('#contacts-box').show();
 	});
 	
-	$(controller).on('statechange', function() {
+	function updateState() {
 		switch(controller.state) {
 		case 'connected':
 			$('#login, #user').attr('disabled', 'disabled');
 			$('#logout').removeAttr('disabled');
-			$('#network-status').text('Click on a player to connect');
 			$('#contacts-box').show();
+
+			switch (controller.playerState) {
+			case 'idle':
+				$('#network-status').text('Click on a player to connect');
+				game.setChannel(null);
+				break;
+			case 'calling':
+				$('#network-status').text('Connecting with ' + controller.peer);
+				game.setChannel(null);
+				break;
+			case 'busy':
+				$('#network-status').text('Playing with ' + controller.peer);
+				enablePeerPing();
+				game.setChannel(controller.peerChannel);
+				break;
+			}
+
+			$('#contacts li').each(function() {
+				$(this).toggleClass('active', controller.peer == $(this).data('contact'));
+			});
 			break;
 		case 'connecting':
 			$('#login, #user').attr('disabled', 'disabled');
@@ -71,35 +90,18 @@
 			$('#login, #user').removeAttr('disabled');
 			$('#contacts-box').hide();
 		}
-	});
+	}
+	
+	$(controller).on('statechange', updateState);
+	$(controller).on('playerstatechange', updateState);
+	updateState();
 	
 	$(controller).on('call', function(e, call) {
 		console.log(call);
 		showIncomingCall(call);
 	});
 	
-	$(controller).on('playerstatechange', function() {
-		switch (controller.playerState) {
-		case 'idle':
-			$('#network-status').text('Click on a player to connect');
-			game.setChannel(null);
-			break;
-		case 'calling':
-			$('#network-status').text('Connecting with ' + controller.peer);
-			game.setChannel(null);
-			break;
-		case 'busy':
-			$('#network-status').text('Playing with ' + controller.peer);
-			enablePeerPing();
-			game.setChannel(controller.peerChannel);
-			break;
-		}
-
-		$('#contacts li').each(function() {
-			$(this).toggleClass('active', controller.peer == $(this).data('contact'));
-		});
-	});
-	
+	// Ping
 	setInterval(function() {
 		if (controller.isConnected)
 			controller.doPing(); 
@@ -108,6 +110,7 @@
 		$('#server-ping').text('Server Ping: ' + pingTime + 'ms');
 	});
 	
+	// Score
 	$(document).on('game', function() {
 		$(game).on('score', function() {
 			$('#score').text(game.ownScore + ' : ' + game.opponentScore);
