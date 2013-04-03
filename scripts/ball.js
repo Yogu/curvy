@@ -3,8 +3,8 @@
 	
 	var SPEED = 15;
 	var SPEED_INCREASE = 0.2; // m/s per played second
-	var XY_SPEED_DECREASE = 0.05;
-	var MAX_SPIN_GAIN = 70;
+	var XY_SPEED_DECREASE = 0.2;
+	var MAX_SPIN_GAIN = 150;
 	var SPIN_GAIN_FACTOR = 0.05;
 	var SPIN_FRICTION = 0;
 	
