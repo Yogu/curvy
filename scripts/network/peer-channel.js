@@ -40,7 +40,7 @@ function PeerChannel(connector) {
 	});
 	
 	$(connector).on('data', function(e, data) {
-		$(self).triggerHandler(data.event, data.data);
+		self._handleEvent(data.event, data.data);
 	});
 }
 
@@ -82,6 +82,10 @@ PeerChannel.prototype = {
 		this.rtcConnected = false;
 		if (this.state == 'connecting' || this.state == 'connected')
 			this._connector.send('connection', {close: true});
+	},
+	
+	doPing: function() {
+		this.sendVolatile('ping', {sendTime: new Date().getTime()});
 	},
 	
 	_connected: function() {
@@ -161,7 +165,7 @@ PeerChannel.prototype = {
 				if (!obj.event)
 					console.log('Received RTC message without event: ' + e.data);
 				
-				$(self).triggerHandler(obj.event, obj.data || null);
+				self._handleEvent(obj.event, obj.data || null);
 			};
 		};
 		
@@ -185,6 +189,20 @@ PeerChannel.prototype = {
 			}
 			this._rtc = null;
 			this._dataChannel = null;
+		}
+	},
+	
+	_handleEvent: function(event, data) {
+		switch (event) {
+		case 'ping':
+			this.sendVolatile('pingback', data);
+			break;
+		case 'pingback':
+			this.pingTime = new Date() - data.sendTime;
+			$(this).triggerHandler('ping', this.pingTime);
+			break;
+		default:
+			$(this).triggerHandler(event, data);
 		}
 	}
 };

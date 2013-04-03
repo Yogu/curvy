@@ -134,6 +134,27 @@ describe('PeerChannel', function() {
 		});
 	});
 	
+	it('should respond to ping', function() {
+		var isCalled = false;
+		var pingTime = null;
+		var channel1 = null;
+		runs(function() {
+			channel1 = new PeerChannel(connector1);
+			var channel2 = new PeerChannel(connector2);
+			channel1.name = '1'; channel2.name = '2';
+			channel1.connect();
+			$(channel1).on('ping', function(e, time) { isCalled = true; pingTime = time; });
+			channel1.doPing();
+		});
+		
+		waitsFor(function() { return isCalled;}, "pingback to be received");
+		
+		runs(function() {
+			expect(typeof(pingTime)).toBe('number');
+			expect(typeof(channel1.pingTime)).toBe('number');
+		});
+	});
+	
 	it('should send and receive before connection is established', function() {
 		var isCalled = false;
 		var receivedData = null;
