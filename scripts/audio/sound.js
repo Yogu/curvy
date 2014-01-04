@@ -37,5 +37,5 @@ Sound.prototype.play = function() {
 	var source = this.context.createBufferSource();
 	source.buffer = this.buffer;
 	source.connect(this.context.destination);
-	source.noteOn(0);
+	source.start();
 };
