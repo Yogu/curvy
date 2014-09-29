@@ -9,10 +9,9 @@ function ServerConnection(userName, url) {
 	this.url = (typeof(url) == 'undefined') ? ServerConnection.WEBSOCKET_URL : url;
 }
 
-//ServerConnection.WEBSOCKET_URL = 'http://curvy.herokuapp.com/';
+ServerConnection.WEBSOCKET_URL = '//curvy.herokuapp.com/';
 //ServerConnection.WEBSOCKET_URL = 'http://curvy-beta.herokuapp.com/';
 //ServerConnection.WEBSOCKET_URL = 'http://localhost:8888/';
-ServerConnection.WEBSOCKET_URL = 'http://yogu.dyndns.org:8888/';
 
 ServerConnection.prototype = {
 	login: function(userName) {
