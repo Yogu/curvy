@@ -4,9 +4,10 @@
 	var SPEED = 15;
 	var SPEED_INCREASE = 0.2; // m/s per played second
 	var XY_SPEED_DECREASE = 0.2;
-	var MAX_SPIN_GAIN = 150;
+	var MAX_SPIN_GAIN = 80;
 	var SPIN_GAIN_FACTOR = 0.05;
 	var SPIN_FRICTION = 0;
+	var SPIN_REDUCTION = 0.8;
 	
 	self.Ball = null;
 	/**
@@ -75,7 +76,7 @@
 					var offset = vec3.scale(vec3.create(), this.spin, SPIN_FRICTION);
 					vec3.add(this.speed, this.speed, offset);
 					// reduce spin (from friction)
-					vec3.scale(this.spin, this.spin, 0.8);
+					vec3.scale(this.spin, this.spin, SPIN_REDUCTION * Math.exp(elapsed));
 					
 					
 					this.speed[axis] *= -1;
@@ -118,6 +119,7 @@
 			var speed = vec3.clone(this.world.paddle.speed);
 			var signX = speed[0] < 0 ? -1 : 1;
 			var signY = speed[1] < 0 ? -1 : 1;
+			console.log(MAX_SPIN_GAIN * (1 - Math.exp(-SPIN_GAIN_FACTOR * Math.abs(speed[0]))));
 			speed[0] = signX * MAX_SPIN_GAIN * (1 - Math.exp(-SPIN_GAIN_FACTOR * Math.abs(speed[0])));
 			speed[1] = signY * MAX_SPIN_GAIN * (1 - Math.exp(-SPIN_GAIN_FACTOR * Math.abs(speed[1])));
 			vec3.add(this.spin, this.spin, speed);
