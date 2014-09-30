@@ -1,7 +1,7 @@
 (function() {
 	window.Game = null;
 	
-	var NETWORK_UPDATE_INTERVAL = 0.1;
+	var NETWORK_UPDATE_INTERVAL = 0.03;
 	
 	/**
 	 * @constructor Creates the game logic
@@ -17,17 +17,22 @@
 			
 			if (channel.isCaller)
 				vec3.multiply(self.world.ball.position, self.world.ball.position, turning);
-			
-			$(channel).on('update', function(e, data) {
-				self.world.opposingPaddle.position[0] = -data.paddle.position[0];
-				self.world.opposingPaddle.position[1] = data.paddle.position[1];
+
+			$(channel).on('u', function(e, data) {
+				var i = 0;
+				self.world.opposingPaddle.position[0] = -data[i++];
+				self.world.opposingPaddle.position[1] = data[i++];
 				// Only download ball position if it's not my turn
 				if (self.world.ball.position[2] < 0) {
-					self.world.ball.position = vec3.multiply(data.ball.position, data.ball.position, turning);
-					self.world.ball.speed = vec3.multiply(data.ball.speed, data.ball.speed, turning);
-					self.world.ball.spin = vec3.multiply(data.ball.spin, data.ball.spin, turning);
-					self.world.ball.rotation = vec3.multiply(data.ball.rotation, data.ball.rotation, turning);
-					self.world.ball.frozen = data.ball.frozen;
+					self.world.ball.position = vec3.multiply(vec3.create(),
+							vec3.fromValues(data[i++], data[i++], data[i++]), turning);
+					self.world.ball.speed = vec3.multiply(vec3.create(),
+							vec3.fromValues(data[i++], data[i++], data[i++]), turning);
+					self.world.ball.spin = vec3.multiply(vec3.create(),
+							vec3.fromValues(data[i++], data[i++], data[i++]), turning);
+					self.world.ball.rotation = vec3.multiply(vec3.create(),
+							vec3.fromValues(data[i++], data[i++], data[i++]), turning);
+					self.world.ball.frozen = !!data[i++];
 				}
 			});
 			$(channel).on('lost', function(e, data) {
@@ -76,15 +81,25 @@
 			if (this.channel != null) {
 				this.timeToNetworkUpdate -= elapsed;
 				if (this.timeToNetworkUpdate < 0) {
-					this.channel.sendVolatile('update', {
-						paddle: {position: this.world.paddle.position},
-						ball: {
-							position: this.world.ball.position,
-							speed: this.world.ball.speed,
-							spin: this.world.ball.spin,
-							rotation: this.world.ball.rotation,
-							frozen: this.world.ball.frozen
-						}});
+					// Compress this for better performance and to circumvent rate limit
+					var data = new Float32Array([
+						this.world.paddle.position[0],
+						this.world.paddle.position[1],
+						this.world.ball.position[0],
+						this.world.ball.position[1],
+						this.world.ball.position[2],
+						this.world.ball.speed[0],
+						this.world.ball.speed[1],
+						this.world.ball.speed[2],
+						this.world.ball.spin[0],
+						this.world.ball.spin[1],
+						this.world.ball.spin[2],
+						this.world.ball.rotation[0],
+						this.world.ball.rotation[1],
+						this.world.ball.rotation[2],
+						this.world.ball.frozen ? 1 : 0
+					]);
+					this.channel.sendVolatile('u', data);
 					this.timeToNetworkUpdate = NETWORK_UPDATE_INTERVAL;
 				}
 			}

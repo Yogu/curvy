@@ -77,6 +77,25 @@ self.Input = function() {
 			self.cursor = [e.pageX, e.pageY];
 		}
 	}, false);
+    
+    document.addEventListener("touchmove", function(e) {
+    	if (e.touches.length > 0) {
+	    	var touch = e.touches[0];
+	    	self.cursor = [touch.pageX, touch.pageY];
+    	}
+    });
+    
+    document.addEventListener("touchstart", function(e) {
+    	self.mouse.left = e.touches.length > 0;
+    	if (e.touches.length > 0) {
+        	var touch = e.touches[0];
+        	self.cursor = [touch.pageX, touch.pageY];
+    	}
+    });
+    
+    document.addEventListener("touchend", function(e) {
+    	self.mouse.left = e.touches.length > 0;
+    });
 	
 	function idToKey(id) {
 		switch (id) {

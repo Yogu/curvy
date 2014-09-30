@@ -1,7 +1,8 @@
 "use strict";
 
-var RTCPeerConnection = window.mozRTCPeerConnection || window.webkitRTCPeerConnection 
-|| window.RTCPeerConnection;
+var RTCPeerConnection = window.mozRTCPeerConnection || window.webkitRTCPeerConnection || window.RTCPeerConnection;
+var RTCSessionDescription = window.mozRTCSessionDescription || window.webkitRTCSessionDescription || window.RTCSessionDescription;
+var RTCIceCandidate = window.mozRTCIceCandidate || window.webkitRTCIceCandidate || window.RTCIceCandidate;
 var RTC_CONFIGURATION = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]};
 
 function PeerChannel(connector) {
@@ -25,7 +26,6 @@ function PeerChannel(connector) {
 			if (self._rtc != null) {
 				var cand = new RTCIceCandidate(data.candidate);
 				console.log('received ice candidate for ' + self.name);
-				console.log(self._dataChannel);
 				self._rtc.addIceCandidate(cand);
 			}
 		} else if (data.fallback) {
@@ -68,12 +68,21 @@ PeerChannel.prototype = {
 		
 	sendVolatile: function(event, data) {
 		data = typeof(data) == 'undefined' ? null : data;
-		var message = {event: event, data: data};
 		
 		if (this.rtcConnected) {
-			this._dataChannel.send(JSON.stringify(message));
+			// Only the update ('u') event uses this
+			try {
+				if (data instanceof ArrayBuffer)
+					this._dataChannel.send(new Float32Array(data.buffer));
+				else
+					this._dataChannel.send(JSON.stringify({e: event, d: data}));
+			} catch (e) {
+				console.log('Error sending over RTCDataChannel');
+				console.log(e);
+				
+			}
 		} else {
-			this._connector.send('volatile', message);
+			this._connector.send('volatile', { event: event, data: data});
 		}
 	},
 	
@@ -98,6 +107,8 @@ PeerChannel.prototype = {
 	},
 	
 	_initRTC: function(description) {
+		var self = this;
+		
 		if (this._rtc) {
 			if (description) {
 				console.log('remote description set for ' + this.name);
@@ -113,7 +124,7 @@ PeerChannel.prototype = {
 		
 		var rtc;
 		try {
-			rtc = new RTCPeerConnection(RTC_CONFIGURATION, {optional: [{RtpDataChannels: true}]});
+			rtc = new RTCPeerConnection(RTC_CONFIGURATION);
 		} catch (e) {
 			console.error(e);
 			return false;
@@ -121,18 +132,23 @@ PeerChannel.prototype = {
 		if (!rtc.createDataChannel)
 			return false;
 
-		var dataChannel;
-		try {
-			dataChannel = rtc.createDataChannel('data', {reliable: false});
-		} catch (e) {
-			console.error(e);
-			return false;
+		if (description) {
+			rtc.ondatachannel = function(e) {
+				self._dataChannel = e.channel;
+				self._setupDataChannel();
+			};
+		} else {
+			try {
+				self._dataChannel = rtc.createDataChannel('data', {maxRetransmits: 0});
+				self._setupDataChannel();
+			} catch (e) {
+				console.error(e);
+				return false;
+			}
 		}
+
 		rtc.name = this.name;
-		
 		this._rtc = rtc;
-		this._dataChannel = dataChannel;
-		var self = this;
 		
 		function gotDescription(desc) {
 			if (self._rtc) {
@@ -142,44 +158,69 @@ PeerChannel.prototype = {
 			}
 		}
 
+		function descriptionFailure(error) {
+			console.log(error);
+			console.log('RTCPeerConnection failed, disabling rtc');
+			self.rtcConnected = false;
+			self.disableRTC = true;
+		}
+
 		if (description) {
 			rtc.setRemoteDescription(new RTCSessionDescription(description));
 			console.log('remote description set for ' + self.name);
-			rtc.createAnswer(gotDescription);
-		} else
-			rtc.createOffer(gotDescription);
+			rtc.createAnswer(gotDescription, descriptionFailure);
+		} else {
+			rtc.createOffer(gotDescription, descriptionFailure);
+		}
 
 		rtc.onicecandidate = function (e) {
 			if (e.candidate != null) // misterious...
 				self._connector.send('connection', {candidate: e.candidate});
 		};
+
+		this.state = 'connecting';
+		
+		return true;
+	},
+	
+	_setupDataChannel: function() {
+		var dataChannel = this._dataChannel;
+		var self = this;
+		
+		dataChannel.binaryMode = 'arraybuffer';
 		
 		dataChannel.onopen = function() {
 			self.rtcConnected = true;
 			self._connected();
-			dataChannel.onmessage = function(e) {
-				try {
-					var obj = JSON.parse(e.data);
-				} catch (e) {
-					console.error('Invalid json over RTC: ' + e);
-					return;
-				}
-				if (!obj.event)
-					console.log('Received RTC message without event: ' + e.data);
-				
-				self._handleEvent(obj.event, obj.data || null);
-			};
 		};
+
+		dataChannel.onmessage = function(e) {
+			// Only the update ('u') event uses this
+			if (e.data instanceof ArrayBuffer)
+				self._handleEvent('u', new Float32Array(e.data));
+			
+			try {
+				var obj = JSON.parse(e.data);
+			} catch (e) {
+				console.error('Invalid json over RTC: ' + e);
+				return;
+			}
+			if (!obj.e)
+				console.log('Received RTC message without event: ' + e.data);
+			
+			self._handleEvent(obj.e, obj.d || null);
+		};
+		
+		dataChannel.onerror = function(e) {
+			console.log('dataChannel errored');
+			console.log(e);
+		}
 		
 		dataChannel.onclose = function() {
 			// If this connection uses RTC, close it
 			if (!self.disableRTC)
 				self.close();
 		};
-
-		this.state = 'connecting';
-		
-		return true;
 	},
 	
 	_closeRTC: function() {

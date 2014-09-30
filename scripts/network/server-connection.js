@@ -9,10 +9,9 @@ function ServerConnection(userName, url) {
 	this.url = (typeof(url) == 'undefined') ? ServerConnection.WEBSOCKET_URL : url;
 }
 
-//ServerConnection.WEBSOCKET_URL = 'http://curvy.herokuapp.com/';
+ServerConnection.WEBSOCKET_URL = '//curvy.herokuapp.com/';
 //ServerConnection.WEBSOCKET_URL = 'http://curvy-beta.herokuapp.com/';
 //ServerConnection.WEBSOCKET_URL = 'http://localhost:8888/';
-ServerConnection.WEBSOCKET_URL = 'http://yogu.dyndns.org:8888/';
 
 ServerConnection.prototype = {
 	login: function(userName) {
@@ -160,8 +159,9 @@ ServerConnection.prototype = {
 		if (state != 'idle' && !peer)
 			throw new Error('_setPlayerState with state != idle, but no peer');
 		
-		if (this.playerState != state || peer != this.peer) { 
-			this._initPeerChannelFor(peer);
+		if (this.playerState != state || peer != this.peer) {
+			if (state != 'calling')
+				this._initPeerChannelFor(peer);
 			this.playerState = state;
 			this.peer = peer || null;
 			$(this).triggerHandler('playerstatechange');
