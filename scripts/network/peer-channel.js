@@ -1,7 +1,8 @@
 "use strict";
 
-var RTCPeerConnection = window.mozRTCPeerConnection || window.webkitRTCPeerConnection 
-|| window.RTCPeerConnection;
+var RTCPeerConnection = window.mozRTCPeerConnection || window.webkitRTCPeerConnection || window.RTCPeerConnection;
+var RTCSessionDescription = window.mozRTCSessionDescription || window.webkitRTCSessionDescription || window.RTCSessionDescription;
+var RTCIceCandidate = window.mozRTCIceCandidate || window.webkitRTCIceCandidate || window.RTCIceCandidate;
 var RTC_CONFIGURATION = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]};
 
 function PeerChannel(connector) {
@@ -142,12 +143,19 @@ PeerChannel.prototype = {
 			}
 		}
 
+		function descriptionFailure(error) {
+			console.log(error);
+			console.log('RTCPeerConnection failed, disabling rtc');
+			self.rtcConnected = false;
+			self.disableRTC = true;
+		}
+
 		if (description) {
 			rtc.setRemoteDescription(new RTCSessionDescription(description));
 			console.log('remote description set for ' + self.name);
-			rtc.createAnswer(gotDescription);
+			rtc.createAnswer(gotDescription, descriptionFailure);
 		} else
-			rtc.createOffer(gotDescription);
+			rtc.createOffer(gotDescription, descriptionFailure);
 
 		rtc.onicecandidate = function (e) {
 			if (e.candidate != null) // misterious...
