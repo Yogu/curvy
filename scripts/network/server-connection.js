@@ -159,8 +159,9 @@ ServerConnection.prototype = {
 		if (state != 'idle' && !peer)
 			throw new Error('_setPlayerState with state != idle, but no peer');
 		
-		if (this.playerState != state || peer != this.peer) { 
-			this._initPeerChannelFor(peer);
+		if (this.playerState != state || peer != this.peer) {
+			if (state != 'calling')
+				this._initPeerChannelFor(peer);
 			this.playerState = state;
 			this.peer = peer || null;
 			$(this).triggerHandler('playerstatechange');
