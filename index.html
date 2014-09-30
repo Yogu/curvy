@@ -101,14 +101,16 @@
 		
 			<div id="game-screen" class="screen">
 				<canvas id ="canvas"></canvas>
-				<div id="status" style="display: none;">Loading...</div>
 				<div id="score">0 : 0</div>
 				
-				<div id="ping-box"><div id="server-ping"></div><div id="peer-ping"></div></div>
+				<div id="game-details">
+					<span id="status"></span>
+					<!-- <span id="server-ping"></span>  -->
+					<span id="peer-ping"></span>
+				</div>
 				
-				<div id="game-buttons">
+				<div id="game-controls">
 					<button id="fullscreen">Fullscreen</button>
-					<button id="reset">Reset World</button>
 					<button id="show-menu">Back to menu</button>
 				</div>
 			</div>

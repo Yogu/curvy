@@ -54,13 +54,6 @@ StartScreen.prototype =  {
 			$('#server-ping').text('Server Ping: ' + pingTime + 'ms');
 		});
 		
-		// Score
-		$(document).on('game', function() {
-			$(game).on('score', function() {
-				$('#score').text(game.ownScore + ' : ' + game.opponentScore);
-			});
-		});
-		
 		function login() {
 			controller.login($('#user').val());
 		}
@@ -81,22 +74,6 @@ StartScreen.prototype =  {
 	        else if (elem.webkitRequestFullScreen) {
 	        	elem.webkitRequestFullScreen();
 	        }
-		}
-		
-		function peerPingReceived(e, pingTime) {
-			$('#peer-ping').text('Peer Ping: ' + pingTime + 'ms');
-		}
-		
-		function enablePeerPing() {
-			$(controller.peerChannel).off('ping', peerPingReceived).on('ping', peerPingReceived);
-			var ping = null;
-			ping = function() {
-				if (controller.peerChannel) {
-					controller.peerChannel.doPing();
-					setTimeout(ping, 1000);
-				}
-			};
-			setTimeout(ping, 0);
 		}
 		
 		// request pointer lock if lost focus and regained

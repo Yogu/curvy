@@ -37,12 +37,6 @@ html {
 	display: block;
 }
 
-#status {
-	position: absolute;
-	left: 10px;
-	top: 10px;
-}
-
 #score {
 	position: absolute;
 	top: 30px;
@@ -58,10 +52,20 @@ html {
 	border-radius: 10px;
 }
 
-#game-buttons {
+#game-controls {
 	position: absolute;
 	bottom: 20px;
 	right: 20px;	
+}
+
+#game-details {
+	position: absolute;
+	left: 10px;
+	top: 10px;
+}
+
+#game-details span:not(:first-child):not(:empty):before {
+	content: ' - ';
 }
 
 body > * {

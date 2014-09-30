@@ -36,6 +36,27 @@ GameScreen.prototype =  {
 		this._elapsedCount = 0;
 		console.log('Render loop started');
 		this._tick();
+
+		// Score
+		$(game).on('score', function() {
+			$('#score').text(game.ownScore + ' : ' + game.opponentScore);
+		});
+		$('#score').text(game.ownScore + ' : ' + game.opponentScore);
+		
+		function peerPingReceived(e, pingTime) {
+			$('#peer-ping').text('Ping: ' + pingTime + 'ms');
+		}
+		
+		if (game.channel) {
+			$(game.channel).off('ping', peerPingReceived).on('ping', peerPingReceived);
+			var ping = function() {
+				if (game.channel) {
+					game.channel.doPing();
+					setTimeout(ping, 1000);
+				}
+			};
+			setTimeout(ping, 0);
+		}
 	},
 	
 	_tick: function() {
@@ -65,7 +86,7 @@ GameScreen.prototype =  {
 		this._elapsedCount++;
 		if (this._elapsedSum >= 0.5) {
 			var fps = (this._elapsedCount / this._elapsedSum).toFixed(1);
-			$('#status').textContent = fps + ' FPS';
+			$('#status').text(fps + ' FPS');
 			this._elapsedSum = 0;
 			this._elapsedCount = 0;
 		}
