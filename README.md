@@ -1,12 +1,10 @@
-Yogularm 3D
-===========
+curvy
+=====
 
-Yogularm 3D is a very early version of a Jump & Run Game that runs in your browser.
+The curvy ball game that runs in your browser. Release the ball, give it spin and try to trick your opponent.
 
-You can [Play the game](http://yogu.github.com/yogularm3d/) right now! I recommend using Google Chrome for best performance.
+This game is inspired by the flash game *curveball*, but has multiplayer support (and no AI).
 
-Use the arrow keys to move, the "A" key to jump and Ctrl to reset the camera. "F" toogles the view distance.
+Simply open [the game in your browser](https://yogu.github.io/curvy/) and share the link with your friends. Have fun!
 
-Have fun!
-
-Also feel free to play [Yogularm Infinite](http://yogularm.de/software/yogularm), a 2D jump&run game.
+The [server](https://github.com/Yogu/curvy-server/) is hosted on heroku.
