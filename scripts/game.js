@@ -1,7 +1,7 @@
 (function() {
 	window.Game = null;
 	
-	var NETWORK_UPDATE_INTERVAL = 0.1;
+	var NETWORK_UPDATE_INTERVAL = 0.03;
 	
 	/**
 	 * @constructor Creates the game logic
