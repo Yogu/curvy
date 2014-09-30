@@ -26,7 +26,6 @@ function PeerChannel(connector) {
 			if (self._rtc != null) {
 				var cand = new RTCIceCandidate(data.candidate);
 				console.log('received ice candidate for ' + self.name);
-				console.log(self._dataChannel);
 				self._rtc.addIceCandidate(cand);
 			}
 		} else if (data.fallback) {
@@ -69,12 +68,21 @@ PeerChannel.prototype = {
 		
 	sendVolatile: function(event, data) {
 		data = typeof(data) == 'undefined' ? null : data;
-		var message = {event: event, data: data};
 		
 		if (this.rtcConnected) {
-			this._dataChannel.send(JSON.stringify(message));
+			// Only the update ('u') event uses this
+			try {
+				if (data instanceof ArrayBuffer)
+					this._dataChannel.send(new Float32Array(data.buffer));
+				else
+					this._dataChannel.send(JSON.stringify({e: event, d: data}));
+			} catch (e) {
+				console.log('Error sending over RTCDataChannel');
+				console.log(e);
+				
+			}
 		} else {
-			this._connector.send('volatile', message);
+			this._connector.send('volatile', { event: event, data: data});
 		}
 	},
 	
