@@ -211,7 +211,7 @@ StartScreen.prototype =  {
     
     _startGame: function() {
     	var game = new Game(this.controller.peerChannel);
-    	var screen = new GameScreen(this.context, game);
+    	var screen = new GameScreen(this.context, game, this.controller);
 		this.control.showScreen(screen);
     }
 };

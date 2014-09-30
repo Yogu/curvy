@@ -1,4 +1,4 @@
-function GameScreen(context, game) {
+function GameScreen(context, game, controller) {
 	this.context = context;
 	this.game = game;
 	var self = this;
@@ -7,9 +7,21 @@ function GameScreen(context, game) {
 	});
 	$(function() {
 		$('#show-menu').click(function() {
+			if (controller.isConnected)
+				controller.hangup();
 			$(self).triggerHandler('finish');
+			$(controller).off('playerstatechange', onplayerstatechange);
 		});
 	});
+	
+	function onplayerstatechange() {
+		if (controller.playerState == 'idle') {
+			$(self).triggerHandler('finish');
+			$(controller).off('playerstatechange', onplayerstatechange);
+		}
+	}
+	
+	$(controller).on('playerstatechange', onplayerstatechange);
 }
 
 GameScreen.prototype =  {

@@ -129,7 +129,7 @@ ServerConnection.prototype = {
 	
 	hangup: function() {
 		if (!this.isConnected)
-			throw new Error("tried to call, but is not connected");
+			throw new Error("tried to hangup, but is not connected");
 		this._setPlayerState('idle');
 		this._socket.emit('hangup');
 	},
