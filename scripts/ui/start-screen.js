@@ -55,19 +55,31 @@ StartScreen.prototype =  {
 		});
 		
 		$(controller).on('chat', function(e, data) {
+			addToChat(data.message, data.sender);
+		});
+		
+		$(controller).on('player-joined', function(e, data) {
+			addToChat(data.player + ' joined');
+		});
+		
+		$(controller).on('player-left', function(e, data) {
+			addToChat(data.player + ' left');
+		});
+		
+		function addToChat(message, user) {
 			var date = new Date();
 			var hours = date.getHours().toString();
 			var minutes = date.getMinutes().toString();
 			if (minutes.length == 1)
 				minutes = '0' + minutes;
-			$('#chat-messages').append(
-					$('<li>').append(
-						$('<span>').addClass('user').text(data.sender),
-						$('<span>').addClass('message').text(data.message),
-						$('<span>').addClass('time').text(hours + ':' + minutes)
-					));
+			var li = $('<li>').appendTo($('#chat-messages'));
+			if (user)
+				li.append($('<span>').addClass('user').text(user));
+			li.append(
+				$('<span>').addClass('message').text(message),
+				$('<span>').addClass('time').text(hours + ':' + minutes));
 			$('#chat-messages').scrollTop($('#chat-messages').height());
-		});
+		}
 		
 		$('#chat-form').submit(function(e) {
 			e.preventDefault();

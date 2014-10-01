@@ -91,8 +91,12 @@ ServerConnection.prototype = {
 			}
 		});
 		
-		this._socket.on('chat', function(data) {
-			$(self).triggerHandler('chat', data);
+		var delegatedEvents = [ 'chat', 'player-joined', 'player-left' ];
+		
+		delegatedEvents.forEach(function(event) {
+			self._socket.on(event, function(data) {
+				$(self).triggerHandler(event, data);
+			});
 		});
 		
 		var setConnectorHandler = function(type) {
