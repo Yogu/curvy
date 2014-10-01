@@ -135,6 +135,7 @@ a:hover {
 h2 {
 	font-size: 16px;
 	text-transform: uppercase;
+	margin: 2em 0 1em;
 }
 
 #start-screen ul {
@@ -144,7 +145,7 @@ h2 {
 }
 
 h3 {
-	margin: 0 0 1em;
+	margin: 1em 0 1em;
 }
 
 #contacts .active,
@@ -163,4 +164,49 @@ h3 {
 
 #button-box {
 	display: block;
+}
+
+#chat-messages {
+	overflow: auto;
+	width: 500px;
+	height: 300px;
+	border: 1px solid white;
+	list-style: none;
+	padding: 10px;
+	margin: 0;
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+}
+
+#chat-input {
+	width: 450px;
+	display: inline-block;
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+}
+
+#chat-submit {
+	width: 45px;
+	display: inline-block;
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+}
+
+#chat-messages .user {
+	font-weight: bold;
+}
+
+#chat-messages .user:after {
+	content: ': ';
+}
+
+#chat-messages .time {
+	float: right;
+}
+
+#chat-messages li {
+	overflow: hidden;
 }

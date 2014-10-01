@@ -91,6 +91,10 @@ ServerConnection.prototype = {
 			}
 		});
 		
+		this._socket.on('chat', function(data) {
+			$(self).triggerHandler('chat', data);
+		});
+		
 		var setConnectorHandler = function(type) {
 			self._socket.on(type, function(data) {
 				if (self.connector && self.connector.peer == data.sender)
@@ -136,6 +140,15 @@ ServerConnection.prototype = {
 	
 	doPing: function() {
 		this._send('ping', {sendTime: new Date().getTime()});
+	},
+	
+	sendChat: function(message) {
+		if (!this.isConnected) {
+			console.warn('tried to send chat, but not connected');
+			return;
+		}
+		this._socket.emit('chat', { message: message });
+		$(this).triggerHandler('chat', { message: message, sender: this.userName } );
 	},
 	
 	_send: function(type, data) {

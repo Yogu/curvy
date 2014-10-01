@@ -54,6 +54,29 @@ StartScreen.prototype =  {
 			$('#server-ping').text('Server Ping: ' + pingTime + 'ms');
 		});
 		
+		$(controller).on('chat', function(e, data) {
+			var date = new Date();
+			var hours = date.getHours().toString();
+			var minutes = date.getMinutes().toString();
+			if (minutes.length == 1)
+				minutes = '0' + minutes;
+			$('#chat-messages').append(
+					$('<li>').append(
+						$('<span>').addClass('user').text(data.sender),
+						$('<span>').addClass('message').text(data.message),
+						$('<span>').addClass('time').text(hours + ':' + minutes)
+					));
+			$('#chat-messages').scrollTop($('#chat-messages').height());
+		});
+		
+		$('#chat-form').submit(function(e) {
+			e.preventDefault();
+			var message = $('#chat-input').val().trim();
+			if (message)
+				controller.sendChat(message);
+			$('#chat-input').val('');
+		});
+		
 		function login() {
 			controller.login($('#user').val());
 		}
@@ -123,6 +146,7 @@ StartScreen.prototype =  {
 	_updateState: function() {
 		var controller = this.controller;
 		var self = this;
+		$('#multiplayer-stuff').toggle(this.controller.state == 'connected');
 		switch(this.controller.state) {
 		case 'connected':
 			$('#login, #user').attr('disabled', 'disabled');
