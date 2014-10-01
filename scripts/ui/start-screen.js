@@ -66,6 +66,11 @@ StartScreen.prototype =  {
 			addToChat(data.player + ' left');
 		});
 		
+		$(controller).on('gameover', function(e, data) {
+			addToChat(data.winner + ' beats ' + data.loser + ' by ' + data.winnerScore + ':' +
+					data.loserScore);
+		});
+		
 		function addToChat(message, user) {
 			var date = new Date();
 			var hours = date.getHours().toString();
@@ -224,6 +229,8 @@ StartScreen.prototype =  {
     
     _startGame: function() {
     	var game = new Game(this.controller.peerChannel);
+    	if (this.controller.peerChannel)
+    		game.endScore = 10; // play until someone reaches 10 points
     	var screen = new GameScreen(this.context, game, this.controller);
 		this.control.showScreen(screen);
     }

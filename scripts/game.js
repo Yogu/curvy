@@ -10,6 +10,7 @@
 		this.resetWorld();
 		this.channel = channel || null;
 		this.timeToNetworkUpdate = 0;
+		this.endScore = 1000000; // infinite game per default
 
 		var self = this;
 		if (channel != null) {
@@ -40,6 +41,7 @@
 				self.world.ball.stop();
 				self.ownScore++;
 				$(self).triggerHandler('score');
+				self._checkEnd();
 			});
 		}
 	};
@@ -55,6 +57,7 @@
 				console.log('player lost ball');
 				self.opponentScore++;
 				$(self).triggerHandler('score');
+				self._checkEnd();
 			});
 
 			this.resetScore();
@@ -153,6 +156,15 @@
 				}
 			} else
 				this.mousePressedOutsideBall = false;
+		},
+		
+		_checkEnd: function() {
+			if (this.ownScore >= this.endScore || this.opponentScore >= this.endScore) {
+				$(this).triggerHandler('end');
+				if (this.opponentScore >= this.endScore && this.channel) {
+					this.channel.sendGameover({ ownScore: this.ownScore, opponentScore: this.opponentScore });
+				}
+			}
 		}
 	};
 })();

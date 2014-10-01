@@ -1,6 +1,7 @@
 function GameScreen(context, game, controller) {
 	this.context = context;
 	this.game = game;
+	this.controller = controller;
 	var self = this;
 	$(this).on('show', function() {
 		self._start();
@@ -30,6 +31,7 @@ GameScreen.prototype =  {
 	_start: function() {
 		window.game = this.game;
 		$(document).triggerHandler('game');
+		var self = this;
 		
 		this._lastTick = new Date().getTime();
 		this._elapsedSum = 0;
@@ -42,6 +44,11 @@ GameScreen.prototype =  {
 			$('#score').text(game.ownScore + ' : ' + game.opponentScore);
 		});
 		$('#score').text(game.ownScore + ' : ' + game.opponentScore);
+		
+		$(game).on('end', function() {
+			if (self.controller.isConnected)
+				self.controller.hangup();
+		});
 		
 		function peerPingReceived(e, pingTime) {
 			$('#peer-ping').text('Ping: ' + pingTime + 'ms');

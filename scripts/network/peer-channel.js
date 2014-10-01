@@ -65,6 +65,10 @@ PeerChannel.prototype = {
 		
 		this._connector.send('data', message);
 	},
+	
+	sendGameover: function(data) {
+		this._connector.send('gameover', data);
+	},
 		
 	sendVolatile: function(event, data) {
 		data = typeof(data) == 'undefined' ? null : data;

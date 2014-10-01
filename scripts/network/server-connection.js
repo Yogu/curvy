@@ -91,7 +91,7 @@ ServerConnection.prototype = {
 			}
 		});
 		
-		var delegatedEvents = [ 'chat', 'player-joined', 'player-left' ];
+		var delegatedEvents = [ 'chat', 'player-joined', 'player-left', 'gameover' ];
 		
 		delegatedEvents.forEach(function(event) {
 			self._socket.on(event, function(data) {
@@ -203,7 +203,7 @@ ServerConnection.prototype = {
 		var self = this;
 		this.connector = {
 			send: function(type, data) {
-				if (['connection', 'data', 'volatile'].indexOf(type) < 0)
+				if (['connection', 'data', 'volatile', 'gameover'].indexOf(type) < 0)
 					throw new Error('Invalid event for connector');
 				self._send(type, {recipient: peer, data: data});
 			},
