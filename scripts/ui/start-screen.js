@@ -83,7 +83,7 @@ StartScreen.prototype =  {
 			li.append(
 				$('<span>').addClass('message').text(message),
 				$('<span>').addClass('time').text(hours + ':' + minutes));
-			$('#chat-messages').scrollTop($('#chat-messages').height());
+			$('#chat-messages').scrollTop($('#chat-messages')[0].scrollHeight);
 		}
 		
 		$('#chat-form').submit(function(e) {
